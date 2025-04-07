@@ -1,6 +1,6 @@
 import { useParams } from "react-router";
 
-const LoginViewPage = (props: any) => {
+const LoginViewPage = () => {
   const { loginId } = useParams();
   return (
     <div>

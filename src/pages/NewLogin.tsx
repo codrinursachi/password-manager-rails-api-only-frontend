@@ -1,4 +1,4 @@
-const NewLoginPage = (props: any) => {
+const NewLoginPage = () => {
   return (
     <div>
       <h1>New Login Page</h1>

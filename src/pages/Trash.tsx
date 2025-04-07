@@ -1,4 +1,4 @@
-const TrashPage = (props: any) => {
+const TrashPage = () => {
   return (
     <div>
       <h1>Trash Page</h1>
