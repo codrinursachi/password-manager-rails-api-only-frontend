@@ -1,25 +1,35 @@
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
-import { AppSidebar } from "@/components/app-sidebar"
-import { Outlet } from "react-router";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/app-sidebar";
+import { Form, Outlet, useSubmit } from "react-router";
 import { useEffect } from "react";
-import { useNavigate } from "react-router";
+import { getAuthToken, getTokenDuration } from "@/util/auth";
+import { Button } from "@/components/ui/button";
 
-const RootLayout: React.FC<{isLoggedIn: boolean}>  = (props) => {
-  const navigate = useNavigate();
+const RootLayout = () => {
+  const token = getAuthToken();
+  const submit = useSubmit();
   useEffect(() => {
-    if (!props.isLoggedIn) {
-      navigate("/login");
+    if (token === "EXPIRED") {
+      submit(null, { action: "/logout", method: "post" });
     }
-  }, [props.isLoggedIn]);
+
+    const expiration = getTokenDuration();
+    setTimeout(() => {
+      submit(null, { action: "/logout", method: "post" });
+    }, expiration);
+  }, []);
+
   return (
     <SidebarProvider>
       <AppSidebar />
-      <main>
-        <SidebarTrigger />
+      <main className="p-4 ">
+        <Form action="/logout" method="post">
+          <Button>Logout</Button>
+        </Form>
         <Outlet />
       </main>
     </SidebarProvider>
   );
-}
+};
 
 export default RootLayout;

@@ -2,20 +2,22 @@ import { createBrowserRouter, RouterProvider } from "react-router";
 import "./App.css";
 import LoginPage from "./pages/Login";
 import LoginsPage from "./pages/Logins";
-import { useState } from "react";
+import { checkAuthLoader } from "./util/auth.ts";
 import RootLayout from "./pages/RootLayout";
 import RegisterPage from "./pages/Register";
 import TrashPage from "./pages/Trash";
 import SharedLoginsPage from "./pages/SharedLogins";
 import LoginViewPage from "./pages/LoginView";
 import NewLoginPage from "./pages/NewLogin";
+import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
+import { action as logoutAction } from "./pages/Logout";
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
   const router = createBrowserRouter([
     {
       path: "/",
-      element: <RootLayout isLoggedIn={isLoggedIn} />,
+      element: <RootLayout />,
+      loader: checkAuthLoader,
       children: [
         { index: true, element: <LoginsPage /> },
         {
@@ -35,9 +37,16 @@ function App() {
     },
     { path: "/login", element: <LoginPage /> },
     { path: "/register", element: <RegisterPage /> },
+    { path: "/logout", action: logoutAction },
   ]);
 
-  return <RouterProvider router={router} />;
+  const queryClient = new QueryClient();
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />;
+    </QueryClientProvider>
+  );
 }
 
 export default App;
