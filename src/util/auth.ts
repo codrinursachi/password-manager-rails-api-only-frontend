@@ -20,6 +20,10 @@ export function getAuthToken() {
 
 export function checkAuthLoader() {
   const token = getAuthToken();
+  if (token === "EXPIRED") {
+    localStorage.removeItem("token");
+    localStorage.removeItem("expiration");
+  }
   if (!token) {
     return redirect("/login");
   }
