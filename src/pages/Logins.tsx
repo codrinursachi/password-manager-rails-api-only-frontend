@@ -23,7 +23,8 @@ const LoginsPage = () => {
 export default LoginsPage;
 
 export async function loader() {
-  const response = await fetch("http://127.0.0.1:3000/api/v1/logins", {
+  const queryParameter = new URLSearchParams(window.location.search).toString();
+  const response = await fetch(`http://127.0.0.1:3000/api/v1/logins?${queryParameter}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -37,7 +38,6 @@ export async function loader() {
     };
   }
   const data = await response.json();
-  console.log(data);
   return {
     logins: data,
   };

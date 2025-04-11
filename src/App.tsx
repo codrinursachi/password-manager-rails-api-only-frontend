@@ -20,30 +20,31 @@ const rootLoader = async () => {
   return folders;
 }
 
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <RootLayout />,
+    id: "data",
+    loader: rootLoader,
+    children: [
+      { index: true, element: <LoginsPage />, loader: loginsLoader },
+      {
+        path: "logins/:loginId",
+        element: <LoginViewPage />,
+      },
+      {
+        path: "shared-logins",
+        element: <SharedLoginsPage />,
+      },
+      { path: "trash", element: <TrashPage /> },
+    ],
+  },
+  { path: "/login", element: <LoginPage /> },
+  { path: "/register", element: <RegisterPage /> },
+  { path: "/logout", action: logoutAction },
+]);
+
 function App() {
-  const router = createBrowserRouter([
-    {
-      path: "/",
-      element: <RootLayout />,
-      id: "data",
-      loader: rootLoader,
-      children: [
-        { index: true, element: <LoginsPage />, loader: loginsLoader },
-        {
-          path: "logins/:loginId",
-          element: <LoginViewPage />,
-        },
-        {
-          path: "shared-logins",
-          element: <SharedLoginsPage />,
-        },
-        { path: "trash", element: <TrashPage /> },
-      ],
-    },
-    { path: "/login", element: <LoginPage /> },
-    { path: "/register", element: <RegisterPage /> },
-    { path: "/logout", action: logoutAction },
-  ]);
 
   const queryClient = new QueryClient();
 

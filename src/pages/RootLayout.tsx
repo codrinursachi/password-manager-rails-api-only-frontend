@@ -6,13 +6,8 @@ import { getAuthToken, getTokenDuration } from "@/util/auth";
 import { Button } from "@/components/ui/button";
 
 const RootLayout = () => {
-  const token = getAuthToken();
   const submit = useSubmit();
   useEffect(() => {
-    if (token === "EXPIRED") {
-      submit(null, { action: "/logout", method: "post" });
-    }
-
     const expiration = getTokenDuration();
     setTimeout(() => {
       submit(null, { action: "/logout", method: "post" });
@@ -23,9 +18,6 @@ const RootLayout = () => {
     <SidebarProvider>
       <AppSidebar />
       <main className="p-4 ">
-        <Form action="/logout" method="post">
-          <Button>Logout</Button>
-        </Form>
         <Outlet />
       </main>
     </SidebarProvider>
@@ -44,5 +36,5 @@ export const loader = async () => {
     },
   });
 
-  return await response.json();
+  return response.json();
 }
