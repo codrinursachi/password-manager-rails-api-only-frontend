@@ -13,13 +13,21 @@ import {
 } from "@/components/ui/sidebar";
 
 import { Plus } from "lucide-react";
-import { Form, Link, useLoaderData } from "react-router";
+import { Form, Link, useLoaderData, useSearchParams } from "react-router";
 import { Button } from "./ui/button";
 import FoldersDropdown from "./folders-dropdown";
+import { Dialog, DialogClose, DialogTrigger } from "@radix-ui/react-dialog";
+import {
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogTitle,
+} from "./ui/dialog";
+import { Input } from "./ui/input";
 
 const specialLocations = [
-  ["All logins", "/"],
-  ["Favorites", "/?favorite=true"],
+  ["All logins", "/logins"],
+  ["Favorites", "/logins?favorite=true"],
   ["Shared by me", "/shared-logins?by_me=true"],
   ["Shared with me", "/shared-logins"],
 ];
@@ -52,19 +60,39 @@ export function AppSidebar() {
         </SidebarGroup>
         <SidebarGroup>
           <SidebarGroupLabel>Folders</SidebarGroupLabel>
-          <SidebarGroupAction title="Add folder">
-            <Plus /> <span className="sr-only">Add folder</span>
-          </SidebarGroupAction>
+          <Dialog>
+            <DialogTrigger asChild>
+              <SidebarGroupAction title="Add folder">
+                <Plus /> <span className="sr-only">Add folder</span>
+              </SidebarGroupAction>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogTitle>Add folder</DialogTitle>
+              <Form method="post" action="/folders">
+                <Input type="text" name="folder[name]" />
+                <br />
+                <DialogFooter>
+                  <DialogClose asChild>
+                    <Button type="submit">Create</Button>
+                  </DialogClose>
+                </DialogFooter>
+              </Form>
+            </DialogContent>
+          </Dialog>
           <SidebarGroupContent>
             <SidebarMenu>
               {folders.map((folder) => (
                 <SidebarMenuItem key={folder.id}>
                   <SidebarMenuButton asChild>
-                    <a href={"/?folder_id=" + folder.id}>
+                    <Link to={"/logins?folder_id=" + folder.id}>
                       <span>{folder.name}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
-                  <FoldersDropdown />
+                  {folder.name !== "No folder" ? (
+                    <FoldersDropdown folder={folder} />
+                  ) : (
+                    ""
+                  )}
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>

@@ -18,11 +18,18 @@ import {
 } from "./ui/dialog";
 import { Button } from "./ui/button";
 import { useState } from "react";
+import { Form } from "react-router";
+import { Input } from "./ui/input";
+import { p } from "node_modules/react-router/dist/development/fog-of-war-BjgPfDmv.d.mts";
 
-const FoldersDropdown = () => {
+const FoldersDropdown = (props) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   return (
-    <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen} modal={false}>
+    <DropdownMenu
+      open={dropdownOpen}
+      onOpenChange={setDropdownOpen}
+      modal={false}
+    >
       <DropdownMenuTrigger asChild>
         <SidebarMenuAction>
           <MoreHorizontal />
@@ -41,21 +48,25 @@ const FoldersDropdown = () => {
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>test</DialogTitle>
-              <DialogDescription>test</DialogDescription>
+              <DialogTitle>Rename folder</DialogTitle>
             </DialogHeader>
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button
-                  type="submit"
-                  onClick={() => {
-                    setDropdownOpen(false);
-                  }}
-                >
-                  Confirm
-                </Button>
-              </DialogClose>
-            </DialogFooter>
+            <Form method="patch" action={"/folders/" + props.folder.id}>
+              <input type="hidden" name="id" value="props.folder.id" />
+              <Input type="text" name="folder[name]" defaultValue={props.folder.name} />
+              <br />
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button
+                    type="submit"
+                    onClick={() => {
+                      setDropdownOpen(false);
+                    }}
+                  >
+                    Confirm
+                  </Button>
+                </DialogClose>
+              </DialogFooter>
+            </Form>
           </DialogContent>
         </Dialog>
         <Dialog>
@@ -70,18 +81,36 @@ const FoldersDropdown = () => {
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>test</DialogTitle>
-              <DialogDescription>test</DialogDescription>
+              <DialogTitle>
+                Are you sure you want to remove the selected folder?
+              </DialogTitle>
             </DialogHeader>
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button type="submit" onClick={
-                  () => {
-                    setDropdownOpen(false);
-                  }
-                }>Confirm</Button>
-              </DialogClose>
-            </DialogFooter>
+            <Form method="delete" action={"/folders/" + props.folder.id}>
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={() => {
+                      setDropdownOpen(false);
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </DialogClose>
+                <DialogClose asChild>
+                  <Button
+                    type="submit"
+                    variant="destructive"
+                    onClick={() => {
+                      setDropdownOpen(false);
+                    }}
+                  >
+                    Yes
+                  </Button>
+                </DialogClose>
+              </DialogFooter>
+            </Form>
           </DialogContent>
         </Dialog>
       </DropdownMenuContent>
