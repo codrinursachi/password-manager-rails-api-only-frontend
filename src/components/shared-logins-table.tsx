@@ -1,5 +1,4 @@
-import { Link } from "react-router";
-import LoginDropdown from "./login-dropdown";
+import { Link, useSearchParams } from "react-router";
 import {
   Table,
   TableHeader,
@@ -8,8 +7,10 @@ import {
   TableBody,
   TableCell,
 } from "./ui/table";
+import SharedLoginDropdown from "./shared-login-dropdown";
 
-const LoginsTable = (props) => {
+const SharedLoginsTable = (props) => {
+  const isSharedByMe = useSearchParams()[0].get("by_me") === "true";
   return (
     <Table className="table-fixed">
       <TableHeader>
@@ -17,13 +18,18 @@ const LoginsTable = (props) => {
           <TableHead key="name">Name</TableHead>
           <TableHead key="username">Username</TableHead>
           <TableHead key="url">URL</TableHead>
+          {isSharedByMe ? (
+            <TableHead key="shared_with">Shared with</TableHead>
+          ) : (
+            <TableHead key="shared_by">Shared by</TableHead>
+          )}
           <TableHead key="actions" className="w-16">
             Actions
           </TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
-        {props.logins.map((login) => (
+        {props.sharedLogins.map((login) => (
           <TableRow key={login.login_id}>
             <TableCell>
               <Link to={"/logins/" + login.login_id + "/edit"}>
@@ -41,7 +47,14 @@ const LoginsTable = (props) => {
               </Link>
             </TableCell>
             <TableCell>
-              <LoginDropdown login={login} />
+              {isSharedByMe ? (
+                <div className="w-full">{login.shared_with}</div>
+              ) : (
+                <div className="w-full">{login.shared_by}</div>
+              )}
+            </TableCell>
+            <TableCell>
+              <SharedLoginDropdown login={login} />
             </TableCell>
           </TableRow>
         ))}
@@ -50,4 +63,4 @@ const LoginsTable = (props) => {
   );
 };
 
-export default LoginsTable;
+export default SharedLoginsTable;

@@ -11,7 +11,7 @@ import { checkAuthLoader } from "./util/auth.ts";
 import RootLayout, { loader as foldersLoader } from "./pages/RootLayout";
 import RegisterPage from "./pages/Register";
 import TrashPage from "./pages/Trash";
-import SharedLoginsPage from "./pages/SharedLogins";
+import SharedLoginsPage, { action as ShareLoginAction, loader as SharedLoginsLoader } from "./pages/SharedLogins";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { action as logoutAction } from "./pages/Logout";
 
@@ -26,7 +26,7 @@ const rootLoader = async () => {
 
 const combinedLoginsLoader = async ({ params, request }) => {
   const [allLogins, individualLogin] = await Promise.all([
-    loginsLoader({request}),
+    loginsLoader({ request }),
     individualLoginLoader({ params }),
   ]);
 
@@ -63,7 +63,7 @@ const router = createBrowserRouter([
       },
       {
         path: "folders",
-        action: folderAction
+        action: folderAction,
       },
       {
         path: "folders/:folderId",
@@ -71,6 +71,12 @@ const router = createBrowserRouter([
       },
       {
         path: "shared-logins",
+        element: <SharedLoginsPage />,
+        loader: SharedLoginsLoader,
+        action: ShareLoginAction,
+      },
+      {
+        path: "shared-logins/:loginId",
         element: <SharedLoginsPage />,
       },
       { path: "trash", element: <TrashPage /> },

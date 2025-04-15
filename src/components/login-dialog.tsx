@@ -30,11 +30,6 @@ const LoginDialog = () => {
         }
       }}
     >
-      <DialogTrigger asChild>
-        <Button variant="outline" onClick={() => navigate("/logins/new")}>
-          Create login
-        </Button>
-      </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>{loginId ? "Edit" : "Create"} login</DialogTitle>

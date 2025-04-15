@@ -26,6 +26,9 @@ const LoginsPage = () => {
         <Input type="text" name="search" />
         <Button type="submit">Search</Button>
       </form>
+      <Button variant="outline" onClick={() => navigate("/logins/new")}>
+        Create login
+      </Button>
       <LoginDialog />
       <LoginsTable logins={logins} />
     </div>

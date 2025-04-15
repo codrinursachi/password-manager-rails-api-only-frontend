@@ -1,9 +1,59 @@
+import LoginDialog from "@/components/login-dialog";
+import SharedLoginsTable from "@/components/shared-logins-table";
+import { getAuthToken } from "@/util/auth";
+import { redirect, useLoaderData } from "react-router";
+
 const SharedLoginsPage = () => {
+  const sharedLogins = useLoaderData().sharedLogins;
+  console.log(sharedLogins);
   return (
     <div>
       <h1>Shared Logins</h1>
+      <LoginDialog />
+      <SharedLoginsTable sharedLogins={sharedLogins} />
     </div>
   );
+};
+export default SharedLoginsPage;
+
+export async function loader({ request }) {
+  const url = new URL(request.url);
+  const queryParameter = url.searchParams.toString();
+  const response = await fetch(
+    "http://127.0.0.1:3000/api/v1/shared_login_data?" + queryParameter,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        Authorization: getAuthToken() || "",
+      },
+    }
+  );
+  if (!response.ok) {
+    console.log(response);
+  }
+  const data = await response.json();
+  return {
+    sharedLogins: data,
+  };
 }
 
-export default SharedLoginsPage;
+export async function action({ request }) {
+  const response = await fetch(
+    "http://127.0.0.1:3000/api/v1/shared_login_data",
+    {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        Autorization: getAuthToken() || "",
+      },
+      body: await request.formData(),
+    }
+  );
+  if (!response.ok) {
+    console.log(await response.json());
+  }
+
+  return redirect("/shared-logins");
+}

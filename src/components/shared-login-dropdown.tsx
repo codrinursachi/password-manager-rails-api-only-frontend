@@ -22,7 +22,6 @@ const LoginDropdown = (props) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   return (
     <DropdownMenu
-      modal={false}
       open={dropdownOpen}
       onOpenChange={setDropdownOpen}
     >
@@ -61,50 +60,8 @@ const LoginDropdown = (props) => {
         ) : (
           ""
         )}
-        <Link to={"/logins/" + props.login.login_id + "/edit"}>
-          <DropdownMenuItem>
-            <span>Edit login</span>
-          </DropdownMenuItem>
-        </Link>
-        <Dialog>
-          <DialogTrigger asChild>
-            <DropdownMenuItem
-              onSelect={(event) => {
-                event.preventDefault();
-              }}
-            >
-              <span>Share login</span>
-            </DropdownMenuItem>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Share login with:</DialogTitle>
-            </DialogHeader>
-            <Form method="post" action={"/shared-logins/"}>
-              <Input
-                type="hidden"
-                name="shared_login_datum[login_id]"
-                value={props.login.login_id}
-              />
-              <Input type="text" name="shared_login_datum[email]" />
-              <br />
-              <DialogFooter>
-                <DialogClose asChild>
-                  <Button
-                    type="submit"
-                    onClick={() => {
-                      setDropdownOpen(false);
-                    }}
-                  >
-                    Confirm
-                  </Button>
-                </DialogClose>
-              </DialogFooter>
-            </Form>
-          </DialogContent>
-        </Dialog>
         <DropdownMenuItem>
-          <span>Send to trash</span>
+          <span>Delete shared login</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

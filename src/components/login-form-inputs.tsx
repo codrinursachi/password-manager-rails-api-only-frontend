@@ -55,6 +55,7 @@ const LoginFormInputs = () => {
         <Label htmlFor="Url" className="text-right">
           Url
         </Label>
+        <Input type="hidden" name="login[urls_attributes][0][id]" value={individualLogin?.urls[0]?.id} />
         <Input
           id="Url"
           className="col-span-3"
@@ -85,9 +86,10 @@ const LoginFormInputs = () => {
         />
       </div>
       <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="custom-field-calue" className="text-left">
+        <Label htmlFor="custom-field-value" className="text-left">
           Custom field value
         </Label>
+        <Input type="hidden" name="login[custom_fields_attributes][0][id]" value={individualLogin?.custom_fields[0]?.id} />
         <Input
           id="custom-field-value"
           className="col-span-3"
