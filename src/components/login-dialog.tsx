@@ -6,7 +6,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Form, useLocation, useNavigate, useParams } from "react-router";
 import LoginFormInputs from "./login-form-inputs";
@@ -15,6 +14,7 @@ import { useEffect, useState } from "react";
 const LoginDialog = () => {
   const loginId = useParams().loginId;
   const isNew = useLocation().pathname.includes("new");
+  const isEditable = useLocation().pathname.includes("edit");
   const [dialogOpen, setDialogOpen] = useState(loginId !== undefined);
   useEffect(() => {
     setDialogOpen(loginId !== undefined || isNew);
@@ -32,7 +32,7 @@ const LoginDialog = () => {
     >
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{loginId ? "Edit" : "Create"} login</DialogTitle>
+          <DialogTitle>{loginId ? isEditable? "Edit" : "View" : "Create"} login</DialogTitle>
         </DialogHeader>
         <Form
           method={loginId ? "patch" : "post"}

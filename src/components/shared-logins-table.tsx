@@ -32,7 +32,7 @@ const SharedLoginsTable = (props) => {
         {props.sharedLogins.map((login) => (
           <TableRow key={login.login_id}>
             <TableCell>
-              <Link to={"/logins/" + login.login_id + "/edit"}>
+              <Link to={"/shared-logins" + (isSharedByMe ? "?by_me=true/" : "/") + login.login_id}>
                 <div className="w-full">{login.name}</div>
               </Link>
             </TableCell>

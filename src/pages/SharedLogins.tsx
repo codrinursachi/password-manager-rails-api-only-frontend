@@ -5,7 +5,6 @@ import { redirect, useLoaderData } from "react-router";
 
 const SharedLoginsPage = () => {
   const sharedLogins = useLoaderData().sharedLogins;
-  console.log(sharedLogins);
   return (
     <div>
       <h1>Shared Logins</h1>
@@ -55,5 +54,5 @@ export async function action({ request }) {
     console.log(await response.json());
   }
 
-  return redirect("/shared-logins");
+  return redirect("/shared-logins?by_me=true");
 }

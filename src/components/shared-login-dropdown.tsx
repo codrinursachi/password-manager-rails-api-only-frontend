@@ -14,17 +14,13 @@ import {
   DialogTitle,
 } from "./ui/dialog";
 import { useState } from "react";
-import { DialogClose, DialogTrigger } from "@radix-ui/react-dialog";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 
 const LoginDropdown = (props) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   return (
-    <DropdownMenu
-      open={dropdownOpen}
-      onOpenChange={setDropdownOpen}
-    >
+    <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
       <DropdownMenuTrigger asChild>
         <MoreHorizontal />
       </DropdownMenuTrigger>

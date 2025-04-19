@@ -13,7 +13,7 @@ import { useLoaderData, useRouteLoaderData } from "react-router";
 
 const LoginFormInputs = () => {
   const individualLogin = useLoaderData().individualLogin;
-  const folders: { id: string; name: string }[] = useRouteLoaderData("data") || [];
+  const folders: { id: number; name: string }[] = useRouteLoaderData("data") || [];
   const selectedFolder = individualLogin?.folder_id;
   return (
     <div className="grid gap-4 py-4">
@@ -114,16 +114,16 @@ const LoginFormInputs = () => {
           name="login[folder_id]"
           defaultValue={
             selectedFolder
-              ? selectedFolder
-              : folders.find((folder) => folder.name === "No folder")?.id
+              ? selectedFolder.toString()
+              : folders.find((folder) => folder.name === "No folder")?.id.toString()
           }
         >
           <SelectTrigger className="w-[295px]">
             <SelectValue placeholder="Select a folder" />
           </SelectTrigger>
           <SelectContent>
-            {folders.map((folder: { id: string; name: string }) => (
-              <SelectItem value={folder.id}>
+            {folders.map((folder: { id: number; name: string }) => (
+              <SelectItem value={folder.id.toString()} key={folder.id}>
                 {folder.name}
               </SelectItem>
             ))}

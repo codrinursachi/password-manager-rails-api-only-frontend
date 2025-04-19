@@ -10,8 +10,14 @@ import { action as folderAction } from "./pages/Folders";
 import { checkAuthLoader } from "./util/auth.ts";
 import RootLayout, { loader as foldersLoader } from "./pages/RootLayout";
 import RegisterPage from "./pages/Register";
-import TrashPage from "./pages/Trash";
-import SharedLoginsPage, { action as ShareLoginAction, loader as SharedLoginsLoader } from "./pages/SharedLogins";
+import TrashPage, {
+  loader as trashedLoginsLoader,
+  action as trashLoginAction,
+} from "./pages/Trash";
+import SharedLoginsPage, {
+  action as shareLoginAction,
+  loader as sharedLoginsLoader,
+} from "./pages/SharedLogins";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { action as logoutAction } from "./pages/Logout";
 
@@ -32,6 +38,24 @@ const combinedLoginsLoader = async ({ params, request }) => {
 
   return { ...allLogins, ...individualLogin };
 };
+
+const combinedSharedLoginsLoader = async ({ params, request }) => {
+  const [sharedLogins, individualLogin] = await Promise.all([
+    sharedLoginsLoader({ request }),
+    individualLoginLoader({ params }),
+  ]);
+
+  return { ...sharedLogins, ...individualLogin };
+}
+
+const combinedTrashLoginsLoader = async ({ params }) => {
+  const [trashedLogins, individualLogin] = await Promise.all([
+    trashedLoginsLoader(),
+    individualLoginLoader({ params }),
+  ]);
+
+  return { ...trashedLogins, ...individualLogin };
+}
 
 const router = createBrowserRouter([
   {
@@ -72,14 +96,21 @@ const router = createBrowserRouter([
       {
         path: "shared-logins",
         element: <SharedLoginsPage />,
-        loader: SharedLoginsLoader,
-        action: ShareLoginAction,
+        loader: sharedLoginsLoader,
+        action: shareLoginAction,
       },
       {
         path: "shared-logins/:loginId",
         element: <SharedLoginsPage />,
+        loader: combinedSharedLoginsLoader,
       },
-      { path: "trash", element: <TrashPage /> },
+      { path: "trash", element: <TrashPage />, loader: trashedLoginsLoader },
+      {
+        path: "trash/:loginId",
+        element: <TrashPage />,
+        loader: combinedTrashLoginsLoader,
+        action: trashLoginAction,
+      },
     ],
   },
   { path: "/login", element: <LoginPage /> },

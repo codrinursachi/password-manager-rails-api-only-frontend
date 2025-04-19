@@ -8,13 +8,14 @@ import {
 import { Form, Link } from "react-router";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "./ui/dialog";
 import { useState } from "react";
-import { DialogClose, DialogTrigger } from "@radix-ui/react-dialog";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 
@@ -103,9 +104,49 @@ const LoginDropdown = (props) => {
             </Form>
           </DialogContent>
         </Dialog>
-        <DropdownMenuItem>
-          <span>Send to trash</span>
-        </DropdownMenuItem>
+        <Dialog>
+          <DialogTrigger asChild>
+            <DropdownMenuItem
+              onSelect={(event) => {
+                event.preventDefault();
+              }}
+            >
+              <span>Send to trash</span>
+            </DropdownMenuItem>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Are you sure you want to send to trash?</DialogTitle>
+            </DialogHeader>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setDropdownOpen(false);
+                  }}
+                >
+                  No
+                </Button>
+              </DialogClose>
+              <DialogClose asChild>
+                <Form
+                  method="delete"
+                  action={"/logins/" + props.login.login_id}
+                >
+                  <Button
+                    type="submit"
+                    onClick={() => {
+                      setDropdownOpen(false);
+                    }}
+                  >
+                    Yes
+                  </Button>
+                </Form>
+              </DialogClose>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </DropdownMenuContent>
     </DropdownMenu>
   );

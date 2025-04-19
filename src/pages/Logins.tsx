@@ -6,7 +6,7 @@ import { getAuthToken } from "@/util/auth";
 import { redirect, useLoaderData, useNavigate } from "react-router";
 
 const LoginsPage = () => {
-  const logins = useLoaderData().logins;
+  const {logins} = useLoaderData();
   const navigate = useNavigate();
   const handleSearch = (e) => {
     e.preventDefault();
