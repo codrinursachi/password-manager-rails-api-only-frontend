@@ -26,13 +26,15 @@ const LoginDialog = () => {
       onOpenChange={(isOpen) => {
         setDialogOpen(isOpen);
         if (!isOpen) {
-          navigate("/logins/");
+          navigate("/logins");
         }
       }}
     >
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{loginId ? isEditable? "Edit" : "View" : "Create"} login</DialogTitle>
+          <DialogTitle>
+            {loginId ? (isEditable ? "Edit" : "View") : "Create"} login
+          </DialogTitle>
         </DialogHeader>
         <Form
           method={loginId ? "patch" : "post"}

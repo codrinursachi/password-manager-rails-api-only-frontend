@@ -13,7 +13,13 @@ import {
 } from "@/components/ui/sidebar";
 
 import { Plus } from "lucide-react";
-import { Form, Link, useLoaderData, useSearchParams } from "react-router";
+import {
+  Form,
+  Link,
+  useLoaderData,
+  useLocation,
+  useSearchParams,
+} from "react-router";
 import { Button } from "./ui/button";
 import FoldersDropdown from "./folders-dropdown";
 import { Dialog, DialogClose, DialogTrigger } from "@radix-ui/react-dialog";
@@ -34,6 +40,9 @@ const specialLocations = [
 
 export function AppSidebar() {
   const folders = useLoaderData();
+  const currentFolder = useSearchParams()[0].get("folder_id");
+  const { pathname, search } = useLocation();
+  const currentUrl = pathname + search;
   return (
     <Sidebar>
       <SidebarHeader>
@@ -48,7 +57,7 @@ export function AppSidebar() {
             <SidebarMenu>
               {specialLocations.map(([name, path]) => (
                 <SidebarMenuItem key={path}>
-                  <SidebarMenuButton asChild>
+                  <SidebarMenuButton asChild isActive={currentUrl === path}>
                     <Link to={path}>
                       <span>{name}</span>
                     </Link>
@@ -83,7 +92,10 @@ export function AppSidebar() {
             <SidebarMenu>
               {folders.map((folder) => (
                 <SidebarMenuItem key={folder.id}>
-                  <SidebarMenuButton asChild>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={currentFolder === folder.id.toString()}
+                  >
                     <Link to={"/logins?folder_id=" + folder.id}>
                       <span>{folder.name}</span>
                     </Link>
@@ -102,7 +114,7 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem key="trash">
-                <SidebarMenuButton asChild>
+                <SidebarMenuButton asChild isActive={currentUrl === "/trash"}>
                   <Link to="/trash">
                     <span>Trash</span>
                   </Link>
