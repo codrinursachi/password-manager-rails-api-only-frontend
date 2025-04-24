@@ -5,19 +5,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { Form, Link } from "react-router";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "./ui/dialog";
-import { useState } from "react";
+import { Form, Link, useLocation } from "react-router";
+import { use, useState } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 
 const LoginDropdown = (props) => {
+  const currentUrl = useLocation().pathname;
   const [dropdownOpen, setDropdownOpen] = useState(false);
   return (
     <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
@@ -56,9 +50,19 @@ const LoginDropdown = (props) => {
         ) : (
           ""
         )}
-        <DropdownMenuItem>
-          <span>Delete shared login</span>
-        </DropdownMenuItem>
+        <Form
+          method="delete"
+          action={
+            currentUrl.includes("by-me")
+              ? `/shared-logins/by-me/${props.login.login_id}`
+              : `/shared-logins/with-me/${props.login.login_id}`
+          }
+        ><button type="submit">
+          <DropdownMenuItem>
+            <span>Delete shared login</span>
+          </DropdownMenuItem>
+          </button>
+        </Form>
       </DropdownMenuContent>
     </DropdownMenu>
   );

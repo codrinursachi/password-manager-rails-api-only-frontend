@@ -25,7 +25,6 @@ import FoldersDropdown from "./folders-dropdown";
 import { Dialog, DialogClose, DialogTrigger } from "@radix-ui/react-dialog";
 import {
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogTitle,
 } from "./ui/dialog";
@@ -34,8 +33,8 @@ import { Input } from "./ui/input";
 const specialLocations = [
   ["All logins", "/logins"],
   ["Favorites", "/logins?favorite=true"],
-  ["Shared by me", "/shared-logins?by_me=true"],
-  ["Shared with me", "/shared-logins"],
+  ["Shared by me", "/shared-logins/by-me"],
+  ["Shared with me", "/shared-logins/with-me"],
 ];
 
 export function AppSidebar() {

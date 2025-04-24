@@ -17,7 +17,7 @@ export default SharedLoginsPage;
 
 export async function loader({ request }) {
   const url = new URL(request.url);
-  const queryParameter = url.searchParams.toString();
+  const queryParameter = url.pathname.includes("by-me") ? "by_me=true" : "";
   const response = await fetch(
     "http://127.0.0.1:3000/api/v1/shared_login_data?" + queryParameter,
     {
@@ -54,5 +54,26 @@ export async function action({ request }) {
     console.log(await response.json());
   }
 
-  return redirect("/shared-logins?by_me=true");
+  return redirect("/shared-logins/by-me");
+}
+
+export async function deleteAction({ request, params }) {
+  const loginId = params.loginId;
+  const response = await fetch(
+    "http://127.0.0.1:3000/api/v1/shared_login_data/" + loginId,
+    {
+      method: "DELETE",
+      headers: {
+        Accept: "application/json",
+        Autorization: getAuthToken() || "",
+      },
+      body: await request.formData(),
+    }
+  );
+
+  if (!response.ok) {
+    console.log(await response.json());
+  }
+
+  return redirect("/shared-logins/by-me");
 }

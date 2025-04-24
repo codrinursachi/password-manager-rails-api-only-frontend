@@ -26,7 +26,7 @@ const LoginDialog = () => {
       onOpenChange={(isOpen) => {
         setDialogOpen(isOpen);
         if (!isOpen) {
-          navigate("/logins");
+          setTimeout(() => navigate(-1), 100);
         }
       }}
     >
@@ -41,8 +41,8 @@ const LoginDialog = () => {
           action={loginId ? `/logins/${loginId}` : "/logins"}
           encType="multipart/form-data"
         >
-          <LoginFormInputs />
-          <DialogFooter className="sm:justify-start">
+          <LoginFormInputs isEditable={isEditable} />
+          <DialogFooter className="sm:justify-start" hidden={!isEditable}>
             <DialogClose asChild>
               <Button type="button" variant="secondary">
                 Close

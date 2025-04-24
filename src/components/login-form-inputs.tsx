@@ -11,9 +11,10 @@ import {
 import { Textarea } from "./ui/textarea";
 import { useLoaderData, useRouteLoaderData } from "react-router";
 
-const LoginFormInputs = () => {
+const LoginFormInputs = (props) => {
   const individualLogin = useLoaderData().individualLogin;
-  const folders: { id: number; name: string }[] = useRouteLoaderData("data") || [];
+  const folders: { id: number; name: string }[] =
+    useRouteLoaderData("data") || [];
   const selectedFolder = individualLogin?.folder_id;
   return (
     <div className="grid gap-4 py-4">
@@ -26,6 +27,7 @@ const LoginFormInputs = () => {
           className="col-span-3"
           name="login[name]"
           defaultValue={individualLogin?.name}
+          readOnly={!props.isEditable}
         />
       </div>
       <div className="grid grid-cols-4 items-center gap-4">
@@ -37,6 +39,7 @@ const LoginFormInputs = () => {
           className="col-span-3"
           name="login[login_name]"
           defaultValue={individualLogin?.login_name}
+          readOnly={!props.isEditable}
         />
       </div>
       <div className="grid grid-cols-4 items-center gap-4">
@@ -49,18 +52,24 @@ const LoginFormInputs = () => {
           className="col-span-3"
           name="login[login_password]"
           defaultValue={individualLogin?.login_password}
+          readOnly={!props.isEditable}
         />
       </div>
       <div className="grid grid-cols-4 items-center gap-4">
         <Label htmlFor="Url" className="text-right">
           Url
         </Label>
-        <Input type="hidden" name="login[urls_attributes][0][id]" value={individualLogin?.urls[0]?.id} />
+        <Input
+          type="hidden"
+          name="login[urls_attributes][0][id]"
+          value={individualLogin?.urls[0]?.id}
+        />
         <Input
           id="Url"
           className="col-span-3"
           name="login[urls_attributes][0][uri]"
           defaultValue={individualLogin?.urls[0]?.uri}
+          readOnly={!props.isEditable}
         />
       </div>
       <div className="grid grid-cols-4 items-center gap-4">
@@ -72,6 +81,7 @@ const LoginFormInputs = () => {
           className="col-span-3"
           name="login[notes]"
           defaultValue={individualLogin?.notes}
+          readOnly={!props.isEditable}
         />
       </div>
       <div className="grid grid-cols-4 items-center gap-4">
@@ -83,18 +93,24 @@ const LoginFormInputs = () => {
           className="col-span-3"
           name="login[custom_fields_attributes][0][name]"
           defaultValue={individualLogin?.custom_fields[0]?.name}
+          readOnly={!props.isEditable}
         />
       </div>
       <div className="grid grid-cols-4 items-center gap-4">
         <Label htmlFor="custom-field-value" className="text-left">
           Custom field value
         </Label>
-        <Input type="hidden" name="login[custom_fields_attributes][0][id]" value={individualLogin?.custom_fields[0]?.id} />
+        <Input
+          type="hidden"
+          name="login[custom_fields_attributes][0][id]"
+          value={individualLogin?.custom_fields[0]?.id}
+        />
         <Input
           id="custom-field-value"
           className="col-span-3"
           name="login[custom_fields_attributes][0][value]"
           defaultValue={individualLogin?.custom_fields[0]?.value}
+          readOnly={!props.isEditable}
         />
       </div>
       <div className="grid grid-cols-4 items-center gap-4">
@@ -106,6 +122,7 @@ const LoginFormInputs = () => {
           className="col-span-3"
           name="login[is_favorite]"
           defaultChecked={individualLogin?.is_favorite}
+          disabled={!props.isEditable}
         />
       </div>
       <div className="grid grid-cols-4 items-center gap-4">
@@ -115,8 +132,11 @@ const LoginFormInputs = () => {
           defaultValue={
             selectedFolder
               ? selectedFolder.toString()
-              : folders.find((folder) => folder.name === "No folder")?.id.toString()
+              : folders
+                  .find((folder) => folder.name === "No folder")
+                  ?.id.toString()
           }
+          disabled={!props.isEditable}
         >
           <SelectTrigger className="w-[295px]">
             <SelectValue placeholder="Select a folder" />
@@ -132,7 +152,13 @@ const LoginFormInputs = () => {
       </div>
       <div className="grid grid-cols-4 items-center gap-4">
         <Label htmlFor="file">File</Label>
-        <Input id="file" type="file" className="w-[295px]" name="login[file]" />
+        <Input
+          id="file"
+          type="file"
+          className="w-[295px]"
+          name="login[file]"
+          disabled={!props.isEditable}
+        />
       </div>
     </div>
   );

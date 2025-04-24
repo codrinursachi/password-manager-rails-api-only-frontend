@@ -16,6 +16,7 @@ import TrashPage, {
 } from "./pages/Trash";
 import SharedLoginsPage, {
   action as shareLoginAction,
+  deleteAction as sharedLoginDeleteAction,
   loader as sharedLoginsLoader,
 } from "./pages/SharedLogins";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
@@ -94,15 +95,31 @@ const router = createBrowserRouter([
         action: folderAction,
       },
       {
-        path: "shared-logins",
-        element: <SharedLoginsPage />,
-        loader: sharedLoginsLoader,
+        path: "shared-logins/",
+        element: <Navigate to="/shared-logins/by-me" />,
         action: shareLoginAction,
       },
       {
-        path: "shared-logins/:loginId",
+        path: "shared-logins/by-me",
+        element: <SharedLoginsPage />,
+        loader: sharedLoginsLoader,
+      },
+      {
+        path: "shared-logins/with-me",
+        element: <SharedLoginsPage />,
+        loader: sharedLoginsLoader,
+      },
+      {
+        path: "shared-logins/by-me/:loginId",
         element: <SharedLoginsPage />,
         loader: combinedSharedLoginsLoader,
+        action: sharedLoginDeleteAction,
+      },
+      {
+        path: "shared-logins/with-me/:loginId",
+        element: <SharedLoginsPage />,
+        loader: combinedSharedLoginsLoader,
+        action: sharedLoginDeleteAction,
       },
       { path: "trash", element: <TrashPage />, loader: trashedLoginsLoader },
       {

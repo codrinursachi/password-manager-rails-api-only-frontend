@@ -1,4 +1,4 @@
-import { Link, useSearchParams } from "react-router";
+import { Link, useLocation, useSearchParams } from "react-router";
 import {
   Table,
   TableHeader,
@@ -10,7 +10,7 @@ import {
 import SharedLoginDropdown from "./shared-login-dropdown";
 
 const SharedLoginsTable = (props) => {
-  const isSharedByMe = useSearchParams()[0].get("by_me") === "true";
+  const isSharedByMe = useLocation().pathname.includes("by-me");
   return (
     <Table className="table-fixed">
       <TableHeader>
@@ -32,7 +32,7 @@ const SharedLoginsTable = (props) => {
         {props.sharedLogins.map((login) => (
           <TableRow key={login.login_id}>
             <TableCell>
-              <Link to={"/shared-logins" + (isSharedByMe ? "?by_me=true/" : "/") + login.login_id}>
+              <Link to={"/shared-logins/" + (isSharedByMe ? "by-me/" : "with-me/") + login.login_id}>
                 <div className="w-full">{login.name}</div>
               </Link>
             </TableCell>
