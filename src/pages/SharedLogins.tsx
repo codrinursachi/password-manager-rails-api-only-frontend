@@ -45,7 +45,7 @@ export async function action({ request }) {
       method: "POST",
       headers: {
         Accept: "application/json",
-        Autorization: getAuthToken() || "",
+        Authorization: getAuthToken() || "",
       },
       body: await request.formData(),
     }
@@ -65,7 +65,7 @@ export async function deleteAction({ request, params }) {
       method: "DELETE",
       headers: {
         Accept: "application/json",
-        Autorization: getAuthToken() || "",
+        Authorization: getAuthToken() || "",
       },
       body: await request.formData(),
     }

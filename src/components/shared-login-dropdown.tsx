@@ -6,9 +6,7 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { Form, Link, useLocation } from "react-router";
-import { use, useState } from "react";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
+import { useState } from "react";
 
 const LoginDropdown = (props) => {
   const currentUrl = useLocation().pathname;

@@ -41,8 +41,8 @@ const LoginDialog = () => {
           action={loginId ? `/logins/${loginId}` : "/logins"}
           encType="multipart/form-data"
         >
-          <LoginFormInputs isEditable={isEditable} />
-          <DialogFooter className="sm:justify-start" hidden={!isEditable}>
+          <LoginFormInputs isEditable={isEditable || isNew} />
+          <DialogFooter className="sm:justify-start" hidden={!isEditable&&!isNew}>
             <DialogClose asChild>
               <Button type="button" variant="secondary">
                 Close

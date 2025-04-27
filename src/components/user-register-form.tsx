@@ -24,7 +24,7 @@ async function signupAction(prevState, formData) {
       enteredValues: { email, password, passwordConfirmation, name },
     };
   }
-  const response = await fetch("http://127.0.0.1:3000/api/v1/signup", {
+  const response = await fetch("http://127.0.0.1:3000/api/v1/register", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -34,6 +34,7 @@ async function signupAction(prevState, formData) {
       user: {
         email,
         password,
+        password_confirmation: passwordConfirmation,
         name,
       },
     }),
