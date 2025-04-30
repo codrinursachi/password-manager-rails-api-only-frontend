@@ -29,6 +29,8 @@ import {
   DialogTitle,
 } from "./ui/dialog";
 import { Input } from "./ui/input";
+import { useQuery } from "@tanstack/react-query";
+import { queryFolders } from "@/util/query-folders";
 
 const specialLocations = [
   ["All logins", "/logins"],
@@ -38,7 +40,11 @@ const specialLocations = [
 ];
 
 export function AppSidebar() {
-  const folders = useLoaderData();
+  const { data } = useQuery({
+    queryKey: ["folders"],
+    queryFn: () => queryFolders(),
+    initialData: useLoaderData(),
+  });
   const currentFolder = useSearchParams()[0].get("folder_id");
   const { pathname, search } = useLocation();
   const currentUrl = pathname + search;
@@ -89,7 +95,7 @@ export function AppSidebar() {
           </Dialog>
           <SidebarGroupContent>
             <SidebarMenu>
-              {folders.map((folder) => (
+              {data.map((folder) => (
                 <SidebarMenuItem key={folder.id}>
                   <SidebarMenuButton
                     asChild

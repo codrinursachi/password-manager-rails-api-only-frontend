@@ -4,10 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getAuthToken } from "@/util/auth";
 import { redirect, useLoaderData, useNavigate } from "react-router";
+import { queryLogins } from "@/util/query-logins";
+import { queryLogin } from "@/util/query-login";
+import { useQuery } from "@tanstack/react-query";
 
 const LoginsPage = () => {
-  const {logins} = useLoaderData();
   const navigate = useNavigate();
+  const url = new URL(window.location.href);
+  const queryParameter = url.searchParams.toString();
   const handleSearch = (e) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -16,6 +20,11 @@ const LoginsPage = () => {
     url.searchParams.set("q", query);
     navigate(`${url.pathname}?${url.searchParams.toString()}`);
   };
+  const { data } = useQuery({
+    queryKey: ["logins", queryParameter],
+    queryFn: () => queryLogins(queryParameter),
+    initialData: useLoaderData(),
+  });
   return (
     <div>
       <h1>Logins</h1>
@@ -30,7 +39,7 @@ const LoginsPage = () => {
         Create login
       </Button>
       <LoginDialog />
-      <LoginsTable logins={logins} />
+      <LoginsTable logins={data.logins} />
     </div>
   );
 };
@@ -40,48 +49,12 @@ export default LoginsPage;
 export async function loader({ request }) {
   const url = new URL(request.url);
   const queryParameter = url.searchParams.toString();
-  const response = await fetch(
-    `http://127.0.0.1:3000/api/v1/logins?${queryParameter}`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        Authorization: getAuthToken() || "",
-      },
-    }
-  );
-  if (!response.ok) {
-    console.log(response);
-  }
-  const data = await response.json();
-  return {
-    logins: data,
-  };
+  return queryLogins(queryParameter);
 }
 
 export async function individualLoginLoader({ params }) {
   const loginId = params.loginId;
-  const response = await fetch(
-    "http://127.0.0.1:3000/api/v1/logins/" + loginId,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        Authorization: getAuthToken() || "",
-      },
-    }
-  );
-  if (!response.ok) {
-    return {
-      error: "Failed to fetch login",
-    };
-  }
-  const data = await response.json();
-  return {
-    individualLogin: data,
-  };
+  return queryLogin(loginId);
 }
 
 export async function action({ request, params }) {

@@ -52,8 +52,8 @@ const LoginDropdown = (props) => {
           method="delete"
           action={
             currentUrl.includes("by-me")
-              ? `/shared-logins/by-me/${props.login.login_id}`
-              : `/shared-logins/with-me/${props.login.login_id}`
+              ? `/shared-logins/by-me/${props.login.id}`
+              : `/shared-logins/with-me/${props.login.id}`
           }
         ><button type="submit">
           <DropdownMenuItem>

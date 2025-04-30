@@ -15,7 +15,7 @@ const LoginDialog = () => {
   const loginId = useParams().loginId;
   const isNew = useLocation().pathname.includes("new");
   const isEditable = useLocation().pathname.includes("edit");
-  const [dialogOpen, setDialogOpen] = useState(loginId !== undefined);
+  const [dialogOpen, setDialogOpen] = useState(false);
   useEffect(() => {
     setDialogOpen(loginId !== undefined || isNew);
   }, [loginId, isNew]);
@@ -26,7 +26,7 @@ const LoginDialog = () => {
       onOpenChange={(isOpen) => {
         setDialogOpen(isOpen);
         if (!isOpen) {
-          setTimeout(() => navigate(-1), 100);
+          setTimeout(() => navigate(-1), 200);
         }
       }}
     >

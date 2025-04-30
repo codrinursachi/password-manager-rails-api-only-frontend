@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import { Checkbox } from "./ui/checkbox";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
@@ -9,10 +10,17 @@ import {
   SelectValue,
 } from "./ui/select";
 import { Textarea } from "./ui/textarea";
-import { useLoaderData, useRouteLoaderData } from "react-router";
+import { useLoaderData, useParams, useRouteLoaderData } from "react-router";
+import { queryLogin } from "@/util/query-login";
 
 const LoginFormInputs = (props) => {
-  const individualLogin = useLoaderData().individualLogin;
+  const id = useParams().loginId;
+  const { data } = useQuery({
+    queryKey: ["individualLogin", id],
+    queryFn: () => queryLogin(id),
+    initialData: useLoaderData(),
+  });
+  const individualLogin = data?.individualLogin;
   const folders: { id: number; name: string }[] =
     useRouteLoaderData("data") || [];
   const selectedFolder = individualLogin?.folder_id;

@@ -15,7 +15,7 @@ export function getAuthToken() {
     return "EXPIRED";
   }
 
-  return 'Bearer ' + token;
+  return token ? 'Bearer ' + token:token;
 }
 
 export function checkAuthLoader() {
