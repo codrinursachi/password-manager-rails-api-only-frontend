@@ -7,6 +7,7 @@ import { redirect, useLoaderData, useNavigate } from "react-router";
 import { queryLogins } from "@/util/query-logins";
 import { queryLogin } from "@/util/query-login";
 import { useQuery } from "@tanstack/react-query";
+import { encryptAES } from "@/util/cryptography";
 
 const LoginsPage = () => {
   const navigate = useNavigate();
@@ -60,6 +61,10 @@ export async function individualLoginLoader({ params }) {
 export async function action({ request, params }) {
   const loginId = params.loginId;
   const method = request.method.toUpperCase();
+  const formData = await request.formData();
+  const passwordData = encryptAES(formData.get("login[login_password]"));
+  formData.set("login[login_password]", (await passwordData).encryptedData);
+  formData.set("login[iv]", (await passwordData).iv);
   const response = await fetch(
     "http://127.0.0.1:3000/api/v1/logins/" + (loginId ? loginId : ""),
     {
@@ -68,7 +73,7 @@ export async function action({ request, params }) {
         Accept: "application/json",
         Authorization: getAuthToken() || "",
       },
-      body: await request.formData(),
+      body: formData,
     }
   );
   if (!response.ok) {

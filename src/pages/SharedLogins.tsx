@@ -1,6 +1,8 @@
 import LoginDialog from "@/components/login-dialog";
 import SharedLoginsTable from "@/components/shared-logins-table";
 import { getAuthToken } from "@/util/auth";
+import { decryptAES, encryptRSAPassword as encryptRSAPassword } from "@/util/cryptography";
+import { queryLogin } from "@/util/query-login";
 import { querySharedLogins } from "@/util/query-shared-logins";
 import { useQuery } from "@tanstack/react-query";
 import { redirect, useLoaderData } from "react-router";
@@ -30,6 +32,35 @@ export async function loader({ request }) {
 }
 
 export async function action({ request }) {
+  const formData = await request.formData();
+  const publicKeyResponse = await fetch(
+    "http://127.0.0.1:3000/api/v1/shared_login_data/new?email=" +
+      formData.get("shared_login_datum[email]"),
+    {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        Authorization: getAuthToken() || "",
+      },
+    }
+  );
+  if (!publicKeyResponse.ok) {
+    console.log(await publicKeyResponse.json());
+    return redirect("/logins");
+  }
+  const publicKey = (await publicKeyResponse.json()).public_key;
+  const { individualLogin } = await queryLogin(
+    formData.get("shared_login_datum[login_id]")
+  );
+  const plaintextPassword = await decryptAES(
+    individualLogin.login_password,
+    individualLogin.iv
+  )
+  const password = await encryptRSAPassword(
+    plaintextPassword,
+    publicKey
+  );
+  formData.set("shared_login_datum[password]", password);
   const response = await fetch(
     "http://127.0.0.1:3000/api/v1/shared_login_data",
     {
@@ -38,11 +69,12 @@ export async function action({ request }) {
         Accept: "application/json",
         Authorization: getAuthToken() || "",
       },
-      body: await request.formData(),
+      body: formData,
     }
   );
   if (!response.ok) {
     console.log(await response.json());
+    return redirect("/logins");
   }
 
   return redirect("/shared-logins/by-me");

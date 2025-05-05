@@ -11,9 +11,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link, useNavigate } from "react-router";
 import { useActionState, useEffect } from "react";
+import { generateSalt } from "@/util/generate-salt";
+import { generateAESKey } from "@/util/generate-aes-key";
+import { keyStore } from "@/util/key-store";
+import { generateBase64RSAPair } from "@/util/generate-base64-rsa";
+import { encryptAES } from "@/util/cryptography";
+import { getPrivateKeyFromBase64 } from "@/util/get-private-rsa-key-from-base64";
 
 async function signupAction(prevState, formData) {
-  //await new Promise((resolve) => setTimeout(resolve, 5000));
   const email = formData.get("email");
   const name = formData.get("name");
   const password = formData.get("password");
@@ -24,6 +29,17 @@ async function signupAction(prevState, formData) {
       enteredValues: { email, password, passwordConfirmation, name },
     };
   }
+  if (!email || !password || !name) {
+    return {
+      error: "Please fill in all fields",
+      enteredValues: { email, password, passwordConfirmation, name },
+    };
+  }
+  const salt = generateSalt();
+  keyStore.key = await generateAESKey(password, salt);
+  const { publicKey, privateKey } = await generateBase64RSAPair();
+  keyStore.privateKey = await getPrivateKeyFromBase64(privateKey);
+  const encryptedPrivateKeyWithIv = await encryptAES(privateKey);
   const response = await fetch("http://127.0.0.1:3000/api/v1/register", {
     method: "POST",
     headers: {
@@ -36,6 +52,12 @@ async function signupAction(prevState, formData) {
         password,
         password_confirmation: passwordConfirmation,
         name,
+        salt,
+        rsa_attributes: {
+          public_key: publicKey,
+          private_key: encryptedPrivateKeyWithIv.encryptedData,
+          private_key_iv: encryptedPrivateKeyWithIv.iv,
+        },
       },
     }),
   });
@@ -51,6 +73,8 @@ async function signupAction(prevState, formData) {
     const expiration = new Date();
     expiration.setMinutes(expiration.getMinutes() + 30);
     localStorage.setItem("expiration", expiration.toString());
+    localStorage.setItem("salt", salt);
+    window.addEventListener("beforeunload", () => localStorage.clear());
   }
   return { error: null };
 }

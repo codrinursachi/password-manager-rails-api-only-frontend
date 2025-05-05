@@ -12,6 +12,8 @@ import {
 import { Textarea } from "./ui/textarea";
 import { useLoaderData, useParams, useRouteLoaderData } from "react-router";
 import { queryLogin } from "@/util/query-login";
+import { decryptAES } from "@/util/cryptography";
+import { useEffect } from "react";
 
 const LoginFormInputs = (props) => {
   const id = useParams().loginId;
@@ -19,11 +21,25 @@ const LoginFormInputs = (props) => {
     queryKey: ["individualLogin", id],
     queryFn: () => queryLogin(id),
     initialData: useLoaderData(),
+    enabled: !!id,
   });
   const individualLogin = data?.individualLogin;
   const folders: { id: number; name: string }[] =
     useRouteLoaderData("data") || [];
   const selectedFolder = individualLogin?.folder_id;
+  useEffect(() => {
+    const decryptPass = async () => {
+      const password = await decryptAES(
+        individualLogin?.login_password,
+        individualLogin?.iv
+      );
+      (document.getElementById("password") as HTMLInputElement).value =
+        password;
+    }
+      if (id) {
+        decryptPass();
+      }
+  }, []);
   return (
     <div className="grid gap-4 py-4">
       <div className="grid grid-cols-4 items-center gap-4">
@@ -59,7 +75,6 @@ const LoginFormInputs = (props) => {
           type="password"
           className="col-span-3"
           name="login[login_password]"
-          defaultValue={individualLogin?.login_password}
           readOnly={!props.isEditable}
         />
       </div>

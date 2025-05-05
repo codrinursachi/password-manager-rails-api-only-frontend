@@ -11,7 +11,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useActionState, useEffect } from "react";
 import { Link, useNavigate } from "react-router";
-
+import { generateAESKey } from "@/util/generate-aes-key";
+import {keyStore} from "@/util/key-store";
+import { decryptAES } from "@/util/cryptography";
+import { getPrivateKeyFromBase64 } from "@/util/get-private-rsa-key-from-base64";
 async function loginAction(prevState, formData) {
   //await new Promise((resolve) => setTimeout(resolve, 5000));
   const email = formData.get("email");
@@ -37,10 +40,15 @@ async function loginAction(prevState, formData) {
   }
   const data = response.headers.get("Authorization");
   if (data) {
+    const json = await response.json();
     localStorage.setItem("token", data);
     const expiration = new Date();
     expiration.setMinutes(expiration.getMinutes() + 30);
     localStorage.setItem("expiration", expiration.toString());
+    keyStore.key = await generateAESKey(password,json.salt);
+    const decryptedBase64Key=await decryptAES(json.private_key, json.private_key_iv);
+    keyStore.privateKey = await getPrivateKeyFromBase64(decryptedBase64Key);
+    window.addEventListener("beforeunload", () => localStorage.clear());
   }
   return { error: null };
 }

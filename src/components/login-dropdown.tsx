@@ -18,6 +18,7 @@ import {
 import { useState } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
+import { decryptAES } from "@/util/cryptography";
 
 const LoginDropdown = (props) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -42,8 +43,13 @@ const LoginDropdown = (props) => {
         </DropdownMenuItem>
         <DropdownMenuItem>
           <span
-            onClick={() =>
-              navigator.clipboard.writeText(props.login.login_password)
+            onClick={async () =>
+              navigator.clipboard.writeText(
+                await decryptAES(
+                  props.login.login_password,
+                  props.login.iv
+                )
+              )
             }
           >
             Copy password

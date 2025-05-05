@@ -7,9 +7,19 @@ import {
 } from "./ui/dropdown-menu";
 import { Form, Link, useLocation } from "react-router";
 import { useState } from "react";
+import { queryLogin } from "@/util/query-login";
+import { decryptAES, decryptRSAPassword } from "@/util/cryptography";
 
+const getPasswordSharedByMe = async (id) => {
+  const { individualLogin } = await queryLogin(id);
+  return decryptAES(individualLogin.login_password, individualLogin.iv);
+};
+const getPasswordSharedWithMe = async (password) => {
+  return decryptRSAPassword(password);
+};
 const LoginDropdown = (props) => {
   const currentUrl = useLocation().pathname;
+  const byMe = currentUrl.includes("by-me");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   return (
     <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
@@ -28,8 +38,14 @@ const LoginDropdown = (props) => {
         </DropdownMenuItem>
         <DropdownMenuItem>
           <span
-            onClick={() =>
-              navigator.clipboard.writeText(props.login.login_password)
+            onClick={async () =>
+              byMe
+                ? navigator.clipboard.writeText(
+                    await getPasswordSharedByMe(props.login.id)
+                  )
+                : navigator.clipboard.writeText(
+                    await getPasswordSharedWithMe(props.login.login_password)
+                  )
             }
           >
             Copy password
@@ -51,14 +67,15 @@ const LoginDropdown = (props) => {
         <Form
           method="delete"
           action={
-            currentUrl.includes("by-me")
+            byMe
               ? `/shared-logins/by-me/${props.login.id}`
               : `/shared-logins/with-me/${props.login.id}`
           }
-        ><button type="submit">
-          <DropdownMenuItem>
-            <span>Delete shared login</span>
-          </DropdownMenuItem>
+        >
+          <button type="submit">
+            <DropdownMenuItem>
+              <span>Delete shared login</span>
+            </DropdownMenuItem>
           </button>
         </Form>
       </DropdownMenuContent>
