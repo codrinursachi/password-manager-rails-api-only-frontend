@@ -1,4 +1,4 @@
-import { Link, useLocation, useSearchParams } from "react-router";
+import { Link, useLocation } from "react-router";
 import {
   Table,
   TableHeader,
@@ -8,8 +8,23 @@ import {
   TableCell,
 } from "./ui/table";
 import SharedLoginDropdown from "./shared-login-dropdown";
+import React from "react";
 
-const SharedLoginsTable = (props) => {
+type SharedLogin = {
+  login_id: number;
+  name: string;
+  login_name: string;
+  urls: string[];
+  shared_by: string;
+  shared_with: string;
+  login_password: string;
+  iv: string;
+  id: number;
+};
+
+const SharedLoginsTable: React.FC<{ sharedLogins: SharedLogin[] }> = (
+  props
+) => {
   const isSharedByMe = useLocation().pathname.includes("by-me");
   return (
     <Table className="table-fixed">
@@ -32,7 +47,13 @@ const SharedLoginsTable = (props) => {
         {props.sharedLogins.map((login) => (
           <TableRow key={login.login_id}>
             <TableCell>
-              <Link to={"/shared-logins/" + (isSharedByMe ? "by-me/" : "with-me/") + login.login_id}>
+              <Link
+                to={
+                  "/shared-logins/" +
+                  (isSharedByMe ? "by-me/" : "with-me/") +
+                  login.login_id
+                }
+              >
                 <div className="w-full">{login.name}</div>
               </Link>
             </TableCell>

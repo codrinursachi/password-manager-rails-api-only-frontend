@@ -1,7 +1,10 @@
 import LoginDialog from "@/components/login-dialog";
 import SharedLoginsTable from "@/components/shared-logins-table";
 import { getAuthToken } from "@/util/auth";
-import { decryptAES, encryptRSAPassword as encryptRSAPassword } from "@/util/cryptography";
+import {
+  decryptAES,
+  encryptRSAPassword as encryptRSAPassword,
+} from "@/util/cryptography";
 import { queryLogin } from "@/util/query-login";
 import { querySharedLogins } from "@/util/query-shared-logins";
 import { useQuery } from "@tanstack/react-query";
@@ -25,13 +28,13 @@ const SharedLoginsPage = () => {
 };
 export default SharedLoginsPage;
 
-export async function loader({ request }) {
+export async function loader({ request }: { request: Request }) {
   const url = new URL(request.url);
   const queryParameter = url.pathname.includes("by-me") ? "by_me=true" : "";
   return querySharedLogins(queryParameter);
 }
 
-export async function action({ request }) {
+export async function action({ request }: { request: Request }) {
   const formData = await request.formData();
   const publicKeyResponse = await fetch(
     "http://127.0.0.1:3000/api/v1/shared_login_data/new?email=" +
@@ -50,16 +53,13 @@ export async function action({ request }) {
   }
   const publicKey = (await publicKeyResponse.json()).public_key;
   const { individualLogin } = await queryLogin(
-    formData.get("shared_login_datum[login_id]")
+    formData.get("shared_login_datum[login_id]")?.toString()!
   );
   const plaintextPassword = await decryptAES(
     individualLogin.login_password,
     individualLogin.iv
-  )
-  const password = await encryptRSAPassword(
-    plaintextPassword,
-    publicKey
   );
+  const password = await encryptRSAPassword(plaintextPassword, publicKey);
   formData.set("shared_login_datum[password]", password);
   const response = await fetch(
     "http://127.0.0.1:3000/api/v1/shared_login_data",
@@ -80,7 +80,11 @@ export async function action({ request }) {
   return redirect("/shared-logins/by-me");
 }
 
-export async function deleteAction({ params }) {
+export async function deleteAction({
+  params,
+}: {
+  params: { loginId: number };
+}) {
   const loginId = params.loginId;
   const response = await fetch(
     "http://127.0.0.1:3000/api/v1/shared_login_data/" + loginId,

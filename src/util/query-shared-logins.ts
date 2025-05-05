@@ -1,6 +1,6 @@
 import { getAuthToken } from "./auth";
 
-export async function querySharedLogins(queryParameter) {
+export async function querySharedLogins(queryParameter: string) {
   const response = await fetch(
     "http://127.0.0.1:3000/api/v1/shared_login_data?" + queryParameter,
     {

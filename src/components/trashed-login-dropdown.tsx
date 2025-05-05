@@ -5,7 +5,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { useState } from "react";
+import React, { useState } from "react";
 import { Form } from "react-router";
 import { Button } from "./ui/button";
 import {
@@ -17,7 +17,11 @@ import {
   DialogTrigger,
 } from "./ui/dialog";
 
-const TrashedLoginDropdown = (props) => {
+type TrashedLogin = {
+  login_id: number;
+};
+
+const TrashedLoginDropdown: React.FC<{ login: TrashedLogin }> = (props) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   return (
     <DropdownMenu
@@ -49,7 +53,9 @@ const TrashedLoginDropdown = (props) => {
                 <Button variant="outline">Cancel</Button>
               </DialogTrigger>
               <Form method="delete" action={"/trash/" + props.login.login_id}>
-                <Button type="submit" variant="destructive">Delete</Button>
+                <Button type="submit" variant="destructive">
+                  Delete
+                </Button>
               </Form>
             </DialogFooter>
           </DialogContent>

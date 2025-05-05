@@ -12,11 +12,11 @@ import { Label } from "@/components/ui/label";
 import { useActionState, useEffect } from "react";
 import { Link, useNavigate } from "react-router";
 import { generateAESKey } from "@/util/generate-aes-key";
-import {keyStore} from "@/util/key-store";
+import { keyStore } from "@/util/key-store";
 import { decryptAES } from "@/util/cryptography";
 import { getPrivateKeyFromBase64 } from "@/util/get-private-rsa-key-from-base64";
-async function loginAction(prevState, formData) {
-  //await new Promise((resolve) => setTimeout(resolve, 5000));
+
+async function loginAction(_prevState: unknown, formData: FormData) {
   const email = formData.get("email");
   const password = formData.get("password");
   const response = await fetch("http://127.0.0.1:3000/api/v1/login", {
@@ -45,8 +45,11 @@ async function loginAction(prevState, formData) {
     const expiration = new Date();
     expiration.setMinutes(expiration.getMinutes() + 30);
     localStorage.setItem("expiration", expiration.toString());
-    keyStore.key = await generateAESKey(password,json.salt);
-    const decryptedBase64Key=await decryptAES(json.private_key, json.private_key_iv);
+    keyStore.key = await generateAESKey(password?.toString()!, json.salt);
+    const decryptedBase64Key = await decryptAES(
+      json.private_key,
+      json.private_key_iv
+    );
     keyStore.privateKey = await getPrivateKeyFromBase64(decryptedBase64Key);
     window.addEventListener("beforeunload", () => localStorage.clear());
   }
@@ -92,7 +95,7 @@ export function LoginForm({
                   name="email"
                   placeholder="m@example.com"
                   required
-                  defaultValue={formState.enteredValues?.email}
+                  defaultValue={formState.enteredValues?.email?.toString()}
                 />
               </div>
               <div className="grid gap-3">
@@ -104,7 +107,7 @@ export function LoginForm({
                   type="password"
                   name="password"
                   required
-                  defaultValue={formState.enteredValues?.password}
+                  defaultValue={formState.enteredValues?.password?.toString()}
                 />
               </div>
               <Button type="submit" className="w-full" disabled={pending}>

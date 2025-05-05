@@ -13,19 +13,23 @@ import { Textarea } from "./ui/textarea";
 import { useLoaderData, useParams, useRouteLoaderData } from "react-router";
 import { queryLogin } from "@/util/query-login";
 import { decryptAES } from "@/util/cryptography";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 
-const LoginFormInputs = (props) => {
+type Folder = {
+  id: number;
+  name: string;
+};
+
+const LoginFormInputs: React.FC<{ isEditable: boolean }> = (props) => {
   const id = useParams().loginId;
   const { data } = useQuery({
     queryKey: ["individualLogin", id],
-    queryFn: () => queryLogin(id),
+    queryFn: () => queryLogin(id!),
     initialData: useLoaderData(),
     enabled: !!id,
   });
   const individualLogin = data?.individualLogin;
-  const folders: { id: number; name: string }[] =
-    useRouteLoaderData("data") || [];
+  const folders: Folder[] = useRouteLoaderData("data") || [];
   const selectedFolder = individualLogin?.folder_id;
   useEffect(() => {
     const decryptPass = async () => {
@@ -35,10 +39,10 @@ const LoginFormInputs = (props) => {
       );
       (document.getElementById("password") as HTMLInputElement).value =
         password;
+    };
+    if (id) {
+      decryptPass();
     }
-      if (id) {
-        decryptPass();
-      }
   }, []);
   return (
     <div className="grid gap-4 py-4">
@@ -165,7 +169,7 @@ const LoginFormInputs = (props) => {
             <SelectValue placeholder="Select a folder" />
           </SelectTrigger>
           <SelectContent>
-            {folders.map((folder: { id: number; name: string }) => (
+            {folders.map((folder: Folder) => (
               <SelectItem value={folder.id.toString()} key={folder.id}>
                 {folder.name}
               </SelectItem>

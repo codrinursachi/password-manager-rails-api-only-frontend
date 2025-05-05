@@ -10,19 +10,19 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
 import { Button } from "./ui/button";
-import { useState } from "react";
+import React, { useState } from "react";
 import { Form } from "react-router";
 import { Input } from "./ui/input";
-import { p } from "node_modules/react-router/dist/development/fog-of-war-BjgPfDmv.d.mts";
 
-const FoldersDropdown = (props) => {
+const FoldersDropdown: React.FC<{ folder: { id: number; name: string } }> = (
+  props
+) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   return (
     <DropdownMenu
@@ -52,7 +52,11 @@ const FoldersDropdown = (props) => {
             </DialogHeader>
             <Form method="patch" action={"/folders/" + props.folder.id}>
               <input type="hidden" name="id" value="props.folder.id" />
-              <Input type="text" name="folder[name]" defaultValue={props.folder.name} />
+              <Input
+                type="text"
+                name="folder[name]"
+                defaultValue={props.folder.name}
+              />
               <br />
               <DialogFooter>
                 <DialogClose asChild>

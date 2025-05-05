@@ -15,13 +15,21 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
-import { useState } from "react";
+import React, { useState } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { decryptAES } from "@/util/cryptography";
 
-const LoginDropdown = (props) => {
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+type Login = {
+  login_name: string;
+  login_password: string;
+  iv: string;
+  file?: string;
+  login_id: number;
+};
+
+const LoginDropdown: React.FC<{ login: Login }> = (props) => {
+  const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
   return (
     <DropdownMenu
       modal={false}
@@ -45,10 +53,7 @@ const LoginDropdown = (props) => {
           <span
             onClick={async () =>
               navigator.clipboard.writeText(
-                await decryptAES(
-                  props.login.login_password,
-                  props.login.iv
-                )
+                await decryptAES(props.login.login_password, props.login.iv)
               )
             }
           >

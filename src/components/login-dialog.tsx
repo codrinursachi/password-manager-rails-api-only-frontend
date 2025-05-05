@@ -42,7 +42,10 @@ const LoginDialog = () => {
           encType="multipart/form-data"
         >
           <LoginFormInputs isEditable={isEditable || isNew} />
-          <DialogFooter className="sm:justify-start" hidden={!isEditable&&!isNew}>
+          <DialogFooter
+            className="sm:justify-start"
+            hidden={!isEditable && !isNew}
+          >
             <DialogClose asChild>
               <Button type="button" variant="secondary">
                 Close

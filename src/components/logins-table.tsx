@@ -8,8 +8,18 @@ import {
   TableBody,
   TableCell,
 } from "./ui/table";
+import React from "react";
 
-const LoginsTable = (props) => {
+type Login = {
+  login_id: number;
+  name: string;
+  login_name: string;
+  urls: string[];
+  login_password: string;
+  iv: string;
+};
+
+const LoginsTable: React.FC<{ logins: Login[] }> = (props) => {
   return (
     <Table className="table-fixed">
       <TableHeader>

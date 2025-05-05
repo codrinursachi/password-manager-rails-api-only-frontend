@@ -18,7 +18,7 @@ import { generateBase64RSAPair } from "@/util/generate-base64-rsa";
 import { encryptAES } from "@/util/cryptography";
 import { getPrivateKeyFromBase64 } from "@/util/get-private-rsa-key-from-base64";
 
-async function signupAction(prevState, formData) {
+async function signupAction(_prevState: unknown, formData: FormData) {
   const email = formData.get("email");
   const name = formData.get("name");
   const password = formData.get("password");
@@ -36,7 +36,7 @@ async function signupAction(prevState, formData) {
     };
   }
   const salt = generateSalt();
-  keyStore.key = await generateAESKey(password, salt);
+  keyStore.key = await generateAESKey(password.toString(), salt);
   const { publicKey, privateKey } = await generateBase64RSAPair();
   keyStore.privateKey = await getPrivateKeyFromBase64(privateKey);
   const encryptedPrivateKeyWithIv = await encryptAES(privateKey);
@@ -118,7 +118,7 @@ export function RegisterForm({
                   placeholder="m@example.com"
                   required
                   name="email"
-                  defaultValue={formState.enteredValues?.email}
+                  defaultValue={formState.enteredValues?.email?.toString()}
                 />
               </div>
               <div className="grid gap-3">
@@ -130,7 +130,7 @@ export function RegisterForm({
                   type="text"
                   required
                   name="name"
-                  defaultValue={formState.enteredValues?.name}
+                  defaultValue={formState.enteredValues?.name?.toString()}
                 />
               </div>
               <div className="grid gap-3">
@@ -142,7 +142,7 @@ export function RegisterForm({
                   type="password"
                   required
                   name="password"
-                  defaultValue={formState.enteredValues?.password}
+                  defaultValue={formState.enteredValues?.password?.toString()}
                 />
               </div>
               <div className="grid gap-3">
@@ -156,7 +156,7 @@ export function RegisterForm({
                   type="password"
                   required
                   name="password-confirmation"
-                  defaultValue={formState.enteredValues?.passwordConfirmation}
+                  defaultValue={formState.enteredValues?.passwordConfirmation?.toString()}
                 />
               </div>
               <Button type="submit" className="w-full" disabled={pending}>

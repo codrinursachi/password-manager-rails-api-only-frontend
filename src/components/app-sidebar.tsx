@@ -23,11 +23,7 @@ import {
 import { Button } from "./ui/button";
 import FoldersDropdown from "./folders-dropdown";
 import { Dialog, DialogClose, DialogTrigger } from "@radix-ui/react-dialog";
-import {
-  DialogContent,
-  DialogFooter,
-  DialogTitle,
-} from "./ui/dialog";
+import { DialogContent, DialogFooter, DialogTitle } from "./ui/dialog";
 import { Input } from "./ui/input";
 import { useQuery } from "@tanstack/react-query";
 import { queryFolders } from "@/util/query-folders";
@@ -95,7 +91,7 @@ export function AppSidebar() {
           </Dialog>
           <SidebarGroupContent>
             <SidebarMenu>
-              {data.map((folder) => (
+              {data.map((folder: { id: number; name: string }) => (
                 <SidebarMenuItem key={folder.id}>
                   <SidebarMenuButton
                     asChild

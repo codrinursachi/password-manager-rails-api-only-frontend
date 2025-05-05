@@ -26,7 +26,13 @@ export async function loader() {
   return queryTrashedLogins();
 }
 
-export async function action({ request, params }) {
+export async function action({
+  request,
+  params,
+}: {
+  request: Request;
+  params: { loginId: number };
+}) {
   const loginId = params.loginId;
   const method = request.method.toUpperCase();
   const response = await fetch(

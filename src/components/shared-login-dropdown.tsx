@@ -6,18 +6,28 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { Form, Link, useLocation } from "react-router";
-import { useState } from "react";
+import React, { useState } from "react";
 import { queryLogin } from "@/util/query-login";
 import { decryptAES, decryptRSAPassword } from "@/util/cryptography";
 
-const getPasswordSharedByMe = async (id) => {
+const getPasswordSharedByMe = async (id: string) => {
   const { individualLogin } = await queryLogin(id);
   return decryptAES(individualLogin.login_password, individualLogin.iv);
 };
-const getPasswordSharedWithMe = async (password) => {
+
+const getPasswordSharedWithMe = async (password: string) => {
   return decryptRSAPassword(password);
 };
-const LoginDropdown = (props) => {
+
+type Login = {
+  login_name: string;
+  login_password: string;
+  iv: string;
+  file?: string;
+  id: number;
+};
+
+const LoginDropdown: React.FC<{ login: Login }> = (props) => {
   const currentUrl = useLocation().pathname;
   const byMe = currentUrl.includes("by-me");
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -41,7 +51,7 @@ const LoginDropdown = (props) => {
             onClick={async () =>
               byMe
                 ? navigator.clipboard.writeText(
-                    await getPasswordSharedByMe(props.login.id)
+                    await getPasswordSharedByMe(props.login.id.toString())
                   )
                 : navigator.clipboard.writeText(
                     await getPasswordSharedWithMe(props.login.login_password)

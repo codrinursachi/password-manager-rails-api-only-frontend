@@ -13,7 +13,7 @@ const LoginsPage = () => {
   const navigate = useNavigate();
   const url = new URL(window.location.href);
   const queryParameter = url.searchParams.toString();
-  const handleSearch = (e) => {
+  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const query = formData.get("search")?.toString() || "";
@@ -47,22 +47,34 @@ const LoginsPage = () => {
 
 export default LoginsPage;
 
-export async function loader({ request }) {
+export async function loader({ request }: { request: Request }) {
   const url = new URL(request.url);
   const queryParameter = url.searchParams.toString();
   return queryLogins(queryParameter);
 }
 
-export async function individualLoginLoader({ params }) {
+export async function individualLoginLoader({
+  params,
+}: {
+  params: { loginId: number };
+}) {
   const loginId = params.loginId;
-  return queryLogin(loginId);
+  return queryLogin(loginId.toString());
 }
 
-export async function action({ request, params }) {
+export async function action({
+  request,
+  params,
+}: {
+  request: Request;
+  params: { loginId: number };
+}) {
   const loginId = params.loginId;
   const method = request.method.toUpperCase();
   const formData = await request.formData();
-  const passwordData = encryptAES(formData.get("login[login_password]"));
+  const passwordData = encryptAES(
+    formData.get("login[login_password]")?.toString()!
+  );
   formData.set("login[login_password]", (await passwordData).encryptedData);
   formData.set("login[iv]", (await passwordData).iv);
   const response = await fetch(
