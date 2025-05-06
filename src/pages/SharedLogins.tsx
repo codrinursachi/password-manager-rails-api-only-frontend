@@ -83,7 +83,7 @@ export async function action({ request }: { request: Request }) {
 export async function deleteAction({
   params,
 }: {
-  params: { loginId: number };
+  params: { loginId?: string };
 }) {
   const loginId = params.loginId;
   const response = await fetch(

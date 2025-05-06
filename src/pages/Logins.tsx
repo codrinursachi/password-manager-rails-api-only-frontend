@@ -6,7 +6,7 @@ import { getAuthToken } from "@/util/auth";
 import { redirect, useLoaderData, useNavigate } from "react-router";
 import { queryLogins } from "@/util/query-logins";
 import { queryLogin } from "@/util/query-login";
-import { useQuery } from "@tanstack/react-query";
+import { QueryClient, useQuery } from "@tanstack/react-query";
 import { encryptAES } from "@/util/cryptography";
 
 const LoginsPage = () => {
@@ -21,11 +21,19 @@ const LoginsPage = () => {
     url.searchParams.set("q", query);
     navigate(`${url.pathname}?${url.searchParams.toString()}`);
   };
-  const { data } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ["logins", queryParameter],
     queryFn: () => queryLogins(queryParameter),
     initialData: useLoaderData(),
   });
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
+
   return (
     <div>
       <h1>Logins</h1>
@@ -40,7 +48,7 @@ const LoginsPage = () => {
         Create login
       </Button>
       <LoginDialog />
-      <LoginsTable logins={data.logins} />
+      {data && <LoginsTable logins={data.logins} />}
     </div>
   );
 };
@@ -50,16 +58,20 @@ export default LoginsPage;
 export async function loader({ request }: { request: Request }) {
   const url = new URL(request.url);
   const queryParameter = url.searchParams.toString();
-  return queryLogins(queryParameter);
+  const queryClient = new QueryClient();
+  return queryClient.fetchQuery({
+    queryKey: ["logins", queryParameter],
+    queryFn: () => queryLogins(queryParameter),
+  });
 }
 
 export async function individualLoginLoader({
   params,
 }: {
-  params: { loginId: number };
+  params: { loginId?: string };
 }) {
   const loginId = params.loginId;
-  return queryLogin(loginId.toString());
+  return queryLogin(loginId!);
 }
 
 export async function action({
@@ -67,7 +79,7 @@ export async function action({
   params,
 }: {
   request: Request;
-  params: { loginId: number };
+  params: { loginId?: string };
 }) {
   const loginId = params.loginId;
   const method = request.method.toUpperCase();

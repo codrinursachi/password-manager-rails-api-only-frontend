@@ -31,7 +31,13 @@ const rootLoader = async () => {
   return folders;
 };
 
-const combinedLoginsLoader = async ({ params, request }) => {
+const combinedLoginsLoader = async ({
+  params,
+  request,
+}: {
+  params: { loginId?: string };
+  request: Request;
+}) => {
   const [allLogins, individualLogin] = await Promise.all([
     loginsLoader({ request }),
     individualLoginLoader({ params }),
@@ -40,23 +46,33 @@ const combinedLoginsLoader = async ({ params, request }) => {
   return { ...allLogins, ...individualLogin };
 };
 
-const combinedSharedLoginsLoader = async ({ params, request }) => {
+const combinedSharedLoginsLoader = async ({
+  params,
+  request,
+}: {
+  params: { loginId?: string };
+  request: Request;
+}) => {
   const [sharedLogins, individualLogin] = await Promise.all([
     sharedLoginsLoader({ request }),
     individualLoginLoader({ params }),
   ]);
 
   return { ...sharedLogins, ...individualLogin };
-}
+};
 
-const combinedTrashLoginsLoader = async ({ params }) => {
+const combinedTrashLoginsLoader = async ({
+  params,
+}: {
+  params: { loginId?: string };
+}) => {
   const [trashedLogins, individualLogin] = await Promise.all([
     trashedLoginsLoader(),
     individualLoginLoader({ params }),
   ]);
 
   return { ...trashedLogins, ...individualLogin };
-}
+};
 
 const router = createBrowserRouter([
   {

@@ -31,7 +31,7 @@ export async function action({
   params,
 }: {
   request: Request;
-  params: { loginId: number };
+  params: { loginId?: string };
 }) {
   const loginId = params.loginId;
   const method = request.method.toUpperCase();
