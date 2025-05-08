@@ -11,12 +11,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link, useNavigate } from "react-router";
 import { useActionState, useEffect } from "react";
-import { generateSalt } from "@/util/generate-salt";
-import { generateAESKey } from "@/util/generate-aes-key";
-import { keyStore } from "@/util/key-store";
-import { generateBase64RSAPair } from "@/util/generate-base64-rsa";
-import { encryptAES } from "@/util/cryptography";
-import { getPrivateKeyFromBase64 } from "@/util/get-private-rsa-key-from-base64";
+import { generateSalt } from "@/util/crypt-utils/generate-salt";
+import { generateAESKey } from "@/util/crypt-utils/generate-aes-key";
+import { keyStore } from "@/util/crypt-utils/key-store";
+import { generateBase64RSAPair } from "@/util/crypt-utils/generate-base64-rsa";
+import { encryptAES } from "@/util/crypt-utils/cryptography";
+import { getPrivateKeyFromBase64 } from "@/util/crypt-utils/get-private-rsa-key-from-base64";
 
 async function signupAction(_prevState: unknown, formData: FormData) {
   const email = formData.get("email");

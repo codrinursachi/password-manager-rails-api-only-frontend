@@ -11,8 +11,8 @@ import {
 } from "./ui/select";
 import { Textarea } from "./ui/textarea";
 import { useLoaderData, useParams, useRouteLoaderData } from "react-router";
-import { queryLogin } from "@/util/query-login";
-import { decryptAES } from "@/util/cryptography";
+import { queryLogin } from "@/util/query-utils/query-login";
+import { decryptAES } from "@/util/crypt-utils/cryptography";
 import React, { useEffect } from "react";
 
 type Folder = {
@@ -24,7 +24,7 @@ const LoginFormInputs: React.FC<{ isEditable: boolean }> = (props) => {
   const id = useParams().loginId;
   const { data } = useQuery({
     queryKey: ["individualLogin", id],
-    queryFn: () => queryLogin(id!),
+    queryFn: ({ signal }) => queryLogin(id!, signal),
     initialData: useLoaderData(),
     enabled: !!id,
   });

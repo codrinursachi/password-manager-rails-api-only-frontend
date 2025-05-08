@@ -26,7 +26,7 @@ import { Dialog, DialogClose, DialogTrigger } from "@radix-ui/react-dialog";
 import { DialogContent, DialogFooter, DialogTitle } from "./ui/dialog";
 import { Input } from "./ui/input";
 import { useQuery } from "@tanstack/react-query";
-import { queryFolders } from "@/util/query-folders";
+import { queryFolders } from "@/util/query-utils/query-folders";
 
 const specialLocations = [
   ["All logins", "/logins"],
@@ -38,7 +38,7 @@ const specialLocations = [
 export function AppSidebar() {
   const { data } = useQuery({
     queryKey: ["folders"],
-    queryFn: () => queryFolders(),
+    queryFn: ({signal}) => queryFolders(signal),
     initialData: useLoaderData(),
   });
   const currentFolder = useSearchParams()[0].get("folder_id");

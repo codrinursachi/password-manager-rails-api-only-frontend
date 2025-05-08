@@ -1,5 +1,4 @@
 import { createBrowserRouter, Navigate, RouterProvider } from "react-router";
-import "./App.css";
 import LoginPage from "./pages/Login";
 import LoginsPage, {
   individualLoginLoader,
@@ -19,8 +18,9 @@ import SharedLoginsPage, {
   deleteAction as sharedLoginDeleteAction,
   loader as sharedLoginsLoader,
 } from "./pages/SharedLogins";
-import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { action as logoutAction } from "./pages/Logout";
+import { queryClient } from "./util/query-utils/query-client.ts";
 
 const rootLoader = async () => {
   const authLoaderResult = checkAuthLoader();
@@ -152,8 +152,6 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
-  const queryClient = new QueryClient();
-
   return (
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />;

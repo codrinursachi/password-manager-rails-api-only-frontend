@@ -18,7 +18,7 @@ import {
 import React, { useState } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { decryptAES } from "@/util/cryptography";
+import { decryptAES } from "@/util/crypt-utils/cryptography";
 
 type Login = {
   login_name: string;

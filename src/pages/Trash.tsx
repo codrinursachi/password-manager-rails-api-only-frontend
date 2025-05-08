@@ -1,14 +1,15 @@
 import LoginDialog from "@/components/login-dialog";
 import TrashedLoginsTable from "@/components/trashed-logins-table";
 import { getAuthToken } from "@/util/auth";
-import { queryTrashedLogins } from "@/util/query-trashed-logins";
+import { queryClient } from "@/util/query-utils/query-client";
+import { queryTrashedLogins } from "@/util/query-utils/query-trashed-logins";
 import { useQuery } from "@tanstack/react-query";
 import { redirect, useLoaderData } from "react-router";
 
 const TrashPage = () => {
   const { data } = useQuery({
     queryKey: ["trashedLogins"],
-    queryFn: () => queryTrashedLogins(),
+    queryFn: ({ signal }) => queryTrashedLogins(signal),
     initialData: useLoaderData(),
   });
   return (
@@ -23,7 +24,10 @@ const TrashPage = () => {
 export default TrashPage;
 
 export async function loader() {
-  return queryTrashedLogins();
+  return queryClient.fetchQuery({
+    queryKey: ["trashedLogins"],
+    queryFn: ({ signal }) => queryTrashedLogins(signal),
+  });
 }
 
 export async function action({

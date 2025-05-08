@@ -4,9 +4,10 @@ import { getAuthToken } from "@/util/auth";
 import {
   decryptAES,
   encryptRSAPassword as encryptRSAPassword,
-} from "@/util/cryptography";
-import { queryLogin } from "@/util/query-login";
-import { querySharedLogins } from "@/util/query-shared-logins";
+} from "@/util/crypt-utils/cryptography";
+import { queryClient } from "@/util/query-utils/query-client";
+import { queryLogin } from "@/util/query-utils/query-login";
+import { querySharedLogins } from "@/util/query-utils/query-shared-logins";
 import { useQuery } from "@tanstack/react-query";
 import { redirect, useLoaderData } from "react-router";
 
@@ -15,7 +16,7 @@ const SharedLoginsPage = () => {
   const queryParameter = url.pathname.includes("by-me") ? "by_me=true" : "";
   const { data } = useQuery({
     queryKey: ["sharedLogins", queryParameter],
-    queryFn: () => querySharedLogins(queryParameter),
+    queryFn: ({ signal }) => querySharedLogins(queryParameter, signal),
     initialData: useLoaderData(),
   });
   return (
@@ -31,7 +32,10 @@ export default SharedLoginsPage;
 export async function loader({ request }: { request: Request }) {
   const url = new URL(request.url);
   const queryParameter = url.pathname.includes("by-me") ? "by_me=true" : "";
-  return querySharedLogins(queryParameter);
+  return queryClient.fetchQuery({
+    queryKey: ["sharedLogins", queryParameter],
+    queryFn: ({ signal }) => querySharedLogins(queryParameter, signal),
+  });
 }
 
 export async function action({ request }: { request: Request }) {
@@ -52,9 +56,11 @@ export async function action({ request }: { request: Request }) {
     return redirect("/logins");
   }
   const publicKey = (await publicKeyResponse.json()).public_key;
-  const { individualLogin } = await queryLogin(
-    formData.get("shared_login_datum[login_id]")?.toString()!
-  );
+  const { individualLogin } = await queryClient.fetchQuery({
+    queryKey: ["individualLogin", formData.get("shared_login_datum[login_id]")],
+    queryFn: ({ signal }) =>
+      queryLogin(formData.get("shared_login_datum[login_id]")?.toString()!, signal),
+  });
   const plaintextPassword = await decryptAES(
     individualLogin.login_password,
     individualLogin.iv

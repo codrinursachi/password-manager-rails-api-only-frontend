@@ -7,11 +7,15 @@ import {
 } from "./ui/dropdown-menu";
 import { Form, Link, useLocation } from "react-router";
 import React, { useState } from "react";
-import { queryLogin } from "@/util/query-login";
-import { decryptAES, decryptRSAPassword } from "@/util/cryptography";
+import { queryLogin } from "@/util/query-utils/query-login";
+import { decryptAES, decryptRSAPassword } from "@/util/crypt-utils/cryptography";
+import { queryClient } from "@/util/query-utils/query-client";
 
 const getPasswordSharedByMe = async (id: string) => {
-  const { individualLogin } = await queryLogin(id);
+  const { individualLogin } = await queryClient.fetchQuery({
+    queryKey: ["individualLogin", id],
+    queryFn: ({ signal }) => queryLogin(id, signal),
+  });
   return decryptAES(individualLogin.login_password, individualLogin.iv);
 };
 
@@ -25,6 +29,7 @@ type Login = {
   iv: string;
   file?: string;
   id: number;
+  login_id: number;
 };
 
 const LoginDropdown: React.FC<{ login: Login }> = (props) => {
@@ -51,7 +56,7 @@ const LoginDropdown: React.FC<{ login: Login }> = (props) => {
             onClick={async () =>
               byMe
                 ? navigator.clipboard.writeText(
-                    await getPasswordSharedByMe(props.login.id.toString())
+                    await getPasswordSharedByMe(props.login.login_id.toString())
                   )
                 : navigator.clipboard.writeText(
                     await getPasswordSharedWithMe(props.login.login_password)

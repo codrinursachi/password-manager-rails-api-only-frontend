@@ -4,10 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getAuthToken } from "@/util/auth";
 import { redirect, useLoaderData, useNavigate } from "react-router";
-import { queryLogins } from "@/util/query-logins";
-import { queryLogin } from "@/util/query-login";
+import { queryLogins } from "@/util/query-utils/query-logins";
+import { queryLogin } from "@/util/query-utils/query-login";
 import { QueryClient, useQuery } from "@tanstack/react-query";
-import { encryptAES } from "@/util/cryptography";
+import { encryptAES } from "@/util/crypt-utils/cryptography";
+import { queryClient } from "@/util/query-utils/query-client";
 
 const LoginsPage = () => {
   const navigate = useNavigate();
@@ -23,7 +24,7 @@ const LoginsPage = () => {
   };
   const { data, isLoading, error } = useQuery({
     queryKey: ["logins", queryParameter],
-    queryFn: () => queryLogins(queryParameter),
+    queryFn: ({ signal }) => queryLogins(queryParameter, signal),
     initialData: useLoaderData(),
   });
 
@@ -61,7 +62,7 @@ export async function loader({ request }: { request: Request }) {
   const queryClient = new QueryClient();
   return queryClient.fetchQuery({
     queryKey: ["logins", queryParameter],
-    queryFn: () => queryLogins(queryParameter),
+    queryFn: ({ signal }) => queryLogins(queryParameter, signal),
   });
 }
 
@@ -71,7 +72,10 @@ export async function individualLoginLoader({
   params: { loginId?: string };
 }) {
   const loginId = params.loginId;
-  return queryLogin(loginId!);
+  return queryClient.fetchQuery({
+    queryKey: ["individualLogin", loginId],
+    queryFn: ({ signal }) => queryLogin(loginId!, signal),
+  });
 }
 
 export async function action({
@@ -104,5 +108,6 @@ export async function action({
     console.log(response);
   }
 
+  queryClient.invalidateQueries({ queryKey: ["logins"] });
   return redirect("/logins");
 }

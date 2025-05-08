@@ -24,7 +24,7 @@ export function checkAuthLoader() {
     localStorage.removeItem("token");
     localStorage.removeItem("expiration");
   }
-  if (!token) {
+  if (!token || token === "EXPIRED") {
     return redirect("/login");
   }
 

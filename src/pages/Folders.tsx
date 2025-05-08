@@ -1,4 +1,5 @@
 import { getAuthToken } from "@/util/auth";
+import { queryClient } from "@/util/query-utils/query-client";
 import { redirect } from "react-router";
 
 export async function action({
@@ -25,5 +26,6 @@ export async function action({
     console.log(response);
   }
 
+  queryClient.invalidateQueries({queryKey: ["folders"]});
   return redirect("/logins");
 }

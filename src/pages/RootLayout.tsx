@@ -3,7 +3,8 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { Outlet, useSubmit } from "react-router";
 import { useEffect } from "react";
 import { getTokenDuration } from "@/util/auth";
-import { queryFolders } from "@/util/query-folders";
+import { queryFolders } from "@/util/query-utils/query-folders";
+import { queryClient } from "@/util/query-utils/query-client";
 
 const RootLayout = () => {
   const submit = useSubmit();
@@ -27,5 +28,8 @@ const RootLayout = () => {
 export default RootLayout;
 
 export const loader = async () => {
-  return queryFolders();
-}
+  return queryClient.fetchQuery({
+    queryKey: ["folders"],
+    queryFn: ({ signal }) => queryFolders(signal),
+  });
+};
