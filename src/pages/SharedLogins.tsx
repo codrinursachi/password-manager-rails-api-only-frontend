@@ -1,10 +1,10 @@
 import LoginDialog from "@/components/login-dialog";
 import SharedLoginsTable from "@/components/shared-logins-table";
-import { getAuthToken } from "@/util/auth";
 import {
   decryptAES,
   encryptRSAPassword as encryptRSAPassword,
 } from "@/util/crypt-utils/cryptography";
+import { networkFetch } from "@/util/network-utils/network-fetch";
 import { queryClient } from "@/util/query-utils/query-client";
 import { queryLogin } from "@/util/query-utils/query-login";
 import { querySharedLogins } from "@/util/query-utils/query-shared-logins";
@@ -40,26 +40,21 @@ export async function loader({ request }: { request: Request }) {
 
 export async function action({ request }: { request: Request }) {
   const formData = await request.formData();
-  const publicKeyResponse = await fetch(
-    "http://127.0.0.1:3000/api/v1/shared_login_data/new?email=" +
-      formData.get("shared_login_datum[email]"),
-    {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-        Authorization: getAuthToken() || "",
-      },
-    }
-  );
-  if (!publicKeyResponse.ok) {
-    console.log(await publicKeyResponse.json());
+  const publicKey = (
+    await networkFetch(
+      "shared_login_data/new?email=" + formData.get("shared_login_datum[email]")
+    )
+  ).public_key;
+  if (!publicKey) {
     return redirect("/logins");
   }
-  const publicKey = (await publicKeyResponse.json()).public_key;
   const { individualLogin } = await queryClient.fetchQuery({
     queryKey: ["individualLogin", formData.get("shared_login_datum[login_id]")],
     queryFn: ({ signal }) =>
-      queryLogin(formData.get("shared_login_datum[login_id]")?.toString()!, signal),
+      queryLogin(
+        formData.get("shared_login_datum[login_id]")?.toString()!,
+        signal
+      ),
   });
   const plaintextPassword = await decryptAES(
     individualLogin.login_password,
@@ -67,19 +62,13 @@ export async function action({ request }: { request: Request }) {
   );
   const password = await encryptRSAPassword(plaintextPassword, publicKey);
   formData.set("shared_login_datum[password]", password);
-  const response = await fetch(
-    "http://127.0.0.1:3000/api/v1/shared_login_data",
-    {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        Authorization: getAuthToken() || "",
-      },
-      body: formData,
-    }
+  const response = await networkFetch(
+    "shared_login_data",
+    undefined,
+    "POST",
+    formData
   );
-  if (!response.ok) {
-    console.log(await response.json());
+  if (response.error) {
     return redirect("/logins");
   }
 
@@ -92,20 +81,6 @@ export async function deleteAction({
   params: { loginId?: string };
 }) {
   const loginId = params.loginId;
-  const response = await fetch(
-    "http://127.0.0.1:3000/api/v1/shared_login_data/" + loginId,
-    {
-      method: "DELETE",
-      headers: {
-        Accept: "application/json",
-        Authorization: getAuthToken() || "",
-      },
-    }
-  );
-
-  if (!response.ok) {
-    console.log(await response.json());
-  }
-
+  await networkFetch("shared_login_data/" + loginId, undefined, "DELETE");
   return redirect("/shared-logins/by-me");
 }

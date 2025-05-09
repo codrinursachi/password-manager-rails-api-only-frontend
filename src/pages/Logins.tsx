@@ -2,13 +2,13 @@ import LoginsTable from "@/components/logins-table";
 import LoginDialog from "@/components/login-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { getAuthToken } from "@/util/auth";
 import { redirect, useLoaderData, useNavigate } from "react-router";
 import { queryLogins } from "@/util/query-utils/query-logins";
 import { queryLogin } from "@/util/query-utils/query-login";
 import { QueryClient, useQuery } from "@tanstack/react-query";
 import { encryptAES } from "@/util/crypt-utils/cryptography";
 import { queryClient } from "@/util/query-utils/query-client";
+import { networkFetch } from "@/util/network-utils/network-fetch";
 
 const LoginsPage = () => {
   const navigate = useNavigate();
@@ -25,6 +25,7 @@ const LoginsPage = () => {
   const { data, isLoading, error } = useQuery({
     queryKey: ["logins", queryParameter],
     queryFn: ({ signal }) => queryLogins(queryParameter, signal),
+    staleTime: 3000,
     initialData: useLoaderData(),
   });
 
@@ -63,6 +64,7 @@ export async function loader({ request }: { request: Request }) {
   return queryClient.fetchQuery({
     queryKey: ["logins", queryParameter],
     queryFn: ({ signal }) => queryLogins(queryParameter, signal),
+    staleTime: 3000,
   });
 }
 
@@ -88,26 +90,12 @@ export async function action({
   const loginId = params.loginId;
   const method = request.method.toUpperCase();
   const formData = await request.formData();
-  const passwordData = encryptAES(
+  const passwordData = await encryptAES(
     formData.get("login[login_password]")?.toString()!
   );
-  formData.set("login[login_password]", (await passwordData).encryptedData);
-  formData.set("login[iv]", (await passwordData).iv);
-  const response = await fetch(
-    "http://127.0.0.1:3000/api/v1/logins/" + (loginId ? loginId : ""),
-    {
-      method,
-      headers: {
-        Accept: "application/json",
-        Authorization: getAuthToken() || "",
-      },
-      body: formData,
-    }
-  );
-  if (!response.ok) {
-    console.log(response);
-  }
-
+  formData.set("login[login_password]", passwordData.encryptedData);
+  formData.set("login[iv]", passwordData.iv);
+  await networkFetch("logins/" + (loginId ? loginId : ""), undefined, method, formData);
   queryClient.invalidateQueries({ queryKey: ["logins"] });
   return redirect("/logins");
 }

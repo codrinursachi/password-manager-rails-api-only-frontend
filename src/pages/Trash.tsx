@@ -1,6 +1,6 @@
 import LoginDialog from "@/components/login-dialog";
 import TrashedLoginsTable from "@/components/trashed-logins-table";
-import { getAuthToken } from "@/util/auth";
+import { networkFetch } from "@/util/network-utils/network-fetch";
 import { queryClient } from "@/util/query-utils/query-client";
 import { queryTrashedLogins } from "@/util/query-utils/query-trashed-logins";
 import { useQuery } from "@tanstack/react-query";
@@ -39,20 +39,11 @@ export async function action({
 }) {
   const loginId = params.loginId;
   const method = request.method.toUpperCase();
-  const response = await fetch(
-    "http://127.0.0.1:3000/api/v1/trashes/" + loginId,
-    {
-      method,
-      headers: {
-        Accept: "application/json",
-        Authorization: getAuthToken() || "",
-      },
-      body: await request.formData(),
-    }
+  await networkFetch(
+    "trashes/" + loginId,
+    undefined,
+    method,
+    await request.formData()
   );
-  if (!response.ok) {
-    console.log(response);
-  }
-
   return redirect("/trash");
 }

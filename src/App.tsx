@@ -1,13 +1,11 @@
 import { createBrowserRouter, Navigate, RouterProvider } from "react-router";
 import LoginPage from "./pages/Login";
 import LoginsPage, {
-  individualLoginLoader,
   loader as loginsLoader,
   action as LoginAction,
 } from "./pages/Logins";
 import { action as folderAction } from "./pages/Folders";
-import { checkAuthLoader } from "./util/auth.ts";
-import RootLayout, { loader as foldersLoader } from "./pages/RootLayout";
+import RootLayout from "./pages/RootLayout";
 import RegisterPage from "./pages/Register";
 import TrashPage, {
   loader as trashedLoginsLoader,
@@ -21,58 +19,7 @@ import SharedLoginsPage, {
 import { QueryClientProvider } from "@tanstack/react-query";
 import { action as logoutAction } from "./pages/Logout";
 import { queryClient } from "./util/query-utils/query-client.ts";
-
-const rootLoader = async () => {
-  const authLoaderResult = checkAuthLoader();
-  if (authLoaderResult instanceof Response) {
-    return authLoaderResult;
-  }
-  const folders = await foldersLoader();
-  return folders;
-};
-
-const combinedLoginsLoader = async ({
-  params,
-  request,
-}: {
-  params: { loginId?: string };
-  request: Request;
-}) => {
-  const [allLogins, individualLogin] = await Promise.all([
-    loginsLoader({ request }),
-    individualLoginLoader({ params }),
-  ]);
-
-  return { ...allLogins, ...individualLogin };
-};
-
-const combinedSharedLoginsLoader = async ({
-  params,
-  request,
-}: {
-  params: { loginId?: string };
-  request: Request;
-}) => {
-  const [sharedLogins, individualLogin] = await Promise.all([
-    sharedLoginsLoader({ request }),
-    individualLoginLoader({ params }),
-  ]);
-
-  return { ...sharedLogins, ...individualLogin };
-};
-
-const combinedTrashLoginsLoader = async ({
-  params,
-}: {
-  params: { loginId?: string };
-}) => {
-  const [trashedLogins, individualLogin] = await Promise.all([
-    trashedLoginsLoader(),
-    individualLoginLoader({ params }),
-  ]);
-
-  return { ...trashedLogins, ...individualLogin };
-};
+import { combinedLoginsLoader, combinedSharedLoginsLoader, combinedTrashLoginsLoader, rootLoader } from "./util/combined-loaders.ts";
 
 const router = createBrowserRouter([
   {

@@ -1,19 +1,24 @@
 import { getAuthToken } from "../auth";
 
-export async function networkFetch(address: string, signal: AbortSignal) {
-  const response = await fetch("http://127.0.0.1:3000/api/v1/"+address, {
-    signal: signal,
-    method: "GET",
+export async function networkFetch(
+  address: string,
+  signal?: AbortSignal,
+  method: string = "GET",
+  body?: FormData
+) {
+  const response = await fetch("http://127.0.0.1:3000/api/v1/" + address, {
+    signal,
+    method,
     headers: {
-      "Content-Type": "application/json",
       Accept: "application/json",
       Authorization: getAuthToken() || "",
     },
+    body,
   });
 
   if (!response.ok) {
     console.log(response);
   }
 
-  return response.json();
+  return method !== "DELETE" && response.json();
 }
