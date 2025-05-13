@@ -12,6 +12,7 @@ const specialLocations = [
   ["Favorites", "/logins?favorite=true"],
   ["Shared by me", "/shared-logins/by-me"],
   ["Shared with me", "/shared-logins/with-me"],
+  ["Notes", "/notes"],
 ];
 
 function SidebarFoldersGroups({

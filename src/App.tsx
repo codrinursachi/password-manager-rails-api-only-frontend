@@ -20,6 +20,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { action as logoutAction } from "./pages/Logout";
 import { queryClient } from "./util/query-utils/query-client.ts";
 import { combinedLoginsLoader, combinedSharedLoginsLoader, combinedTrashLoginsLoader, rootLoader } from "./util/combined-loaders.ts";
+import NotesPage from "./pages/Notes.tsx";
 
 const router = createBrowserRouter([
   {
@@ -91,6 +92,9 @@ const router = createBrowserRouter([
         loader: combinedTrashLoginsLoader,
         action: trashLoginAction,
       },
+      {
+        path: "notes", element: <NotesPage />,
+      }
     ],
   },
   { path: "/login", element: <LoginPage /> },
