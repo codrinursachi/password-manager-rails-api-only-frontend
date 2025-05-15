@@ -13,6 +13,7 @@ const specialLocations = [
   ["Shared by me", "/shared-logins/by-me"],
   ["Shared with me", "/shared-logins/with-me"],
   ["Notes", "/notes"],
+  ["SSH Keys", "/ssh-keys"],
 ];
 
 function SidebarFoldersGroups({

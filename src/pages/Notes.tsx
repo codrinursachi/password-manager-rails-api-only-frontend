@@ -32,7 +32,7 @@ function NotesPage() {
           <UserNote key={note.id} text={note.text} id={note.id} />
         ))}
         {editingNewNote && (
-          <UserNote text="text" whenEditingFinished={finishedEditing} />
+          <UserNote text="" whenEditingFinished={finishedEditing} />
         )}
       </div>
     </div>

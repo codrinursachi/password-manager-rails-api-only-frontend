@@ -19,8 +19,14 @@ import SharedLoginsPage, {
 import { QueryClientProvider } from "@tanstack/react-query";
 import { action as logoutAction } from "./pages/Logout";
 import { queryClient } from "./util/query-utils/query-client.ts";
-import { combinedLoginsLoader, combinedSharedLoginsLoader, combinedTrashLoginsLoader, rootLoader } from "./util/combined-loaders.ts";
+import {
+  combinedLoginsLoader,
+  combinedSharedLoginsLoader,
+  combinedTrashLoginsLoader,
+  rootLoader,
+} from "./util/combined-loaders.ts";
 import NotesPage from "./pages/Notes.tsx";
+import SSHKeysPage,{action as sSSHAction} from "./pages/SSHKeys.tsx";
 
 const router = createBrowserRouter([
   {
@@ -93,8 +99,23 @@ const router = createBrowserRouter([
         action: trashLoginAction,
       },
       {
-        path: "notes", element: <NotesPage />,
-      }
+        path: "notes",
+        element: <NotesPage />,
+      },
+      {
+        path: "ssh-keys",
+        element: <SSHKeysPage />,
+        action: sSSHAction,
+      },
+      {
+        path: "ssh-keys/new",
+        element: <SSHKeysPage />,
+      },
+      {
+        path: "ssh-keys/:keyId",
+        element: <SSHKeysPage />,
+        action: sSSHAction,
+      },
     ],
   },
   { path: "/login", element: <LoginPage /> },
