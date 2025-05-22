@@ -9,12 +9,13 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router";
 import { generateAESKey } from "@/util/crypt-utils/generate-aes-key";
 import { keyStore } from "@/util/crypt-utils/key-store";
 import { decryptAES } from "@/util/crypt-utils/cryptography";
 import { getPrivateKeyFromBase64 } from "@/util/crypt-utils/get-private-rsa-key-from-base64";
+import startAuthentication from "@/util/passkey-util/passkey-authentication";
 
 async function loginAction(_prevState: unknown, formData: FormData) {
   const email = formData.get("email");
@@ -75,6 +76,8 @@ export function LoginForm({
     }
   }, [formState]);
 
+  const email = useRef<HTMLInputElement>(null);
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
@@ -95,9 +98,20 @@ export function LoginForm({
                   name="email"
                   placeholder="m@example.com"
                   required
+                  ref={email}
                   defaultValue={formState.enteredValues?.email?.toString()}
                 />
               </div>
+              <Button
+                type="button"
+                className="w-full"
+                onClick={async () => {
+                  (await startAuthentication(email.current?.value!)) &&
+                    navigate("/");
+                }}
+              >
+                Login with passkey
+              </Button>
               <div className="grid gap-3">
                 <div className="flex items-center">
                   <Label htmlFor="password">Password</Label>

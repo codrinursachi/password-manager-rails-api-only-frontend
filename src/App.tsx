@@ -26,7 +26,7 @@ import {
   rootLoader,
 } from "./util/combined-loaders.ts";
 import NotesPage from "./pages/Notes.tsx";
-import SSHKeysPage,{action as sSSHAction} from "./pages/SSHKeys.tsx";
+import SSHKeysPage, { action as sSSHAction } from "./pages/SSHKeys.tsx";
 
 const router = createBrowserRouter([
   {
@@ -126,7 +126,7 @@ const router = createBrowserRouter([
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />;
+      <RouterProvider router={router} />
     </QueryClientProvider>
   );
 }

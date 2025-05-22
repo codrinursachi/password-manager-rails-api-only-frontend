@@ -9,13 +9,12 @@ function NotesPage() {
     queryKey: ["notes"],
     queryFn: ({ signal }) => queryNotes(signal),
   });
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-  console.log(data);
   const [editingNewNote, setEditingNewNote] = useState(false);
   function finishedEditing() {
     setEditingNewNote(false);
+  }
+  if (isLoading) {
+    return <div>Loading...</div>;
   }
   return (
     <div className="flex flex-col w-full gap-4">

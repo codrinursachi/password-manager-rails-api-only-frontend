@@ -10,13 +10,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link, useNavigate } from "react-router";
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useRef } from "react";
 import { generateSalt } from "@/util/crypt-utils/generate-salt";
 import { generateAESKey } from "@/util/crypt-utils/generate-aes-key";
 import { keyStore } from "@/util/crypt-utils/key-store";
 import { generateBase64RSAPair } from "@/util/crypt-utils/generate-base64-rsa";
 import { encryptAES } from "@/util/crypt-utils/cryptography";
 import { getPrivateKeyFromBase64 } from "@/util/crypt-utils/get-private-rsa-key-from-base64";
+import startRegistration from "@/util/passkey-util/passkey-registration";
 
 async function signupAction(_prevState: unknown, formData: FormData) {
   const email = formData.get("email");
@@ -86,6 +87,8 @@ export function RegisterForm({
   const [formState, formAction, pending] = useActionState(signupAction, {
     error: null,
   });
+  const email = useRef<HTMLInputElement>(null);
+  const name = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   useEffect(() => {
     if (formState.error) {
@@ -118,6 +121,7 @@ export function RegisterForm({
                   placeholder="m@example.com"
                   required
                   name="email"
+                  ref={email}
                   defaultValue={formState.enteredValues?.email?.toString()}
                 />
               </div>
@@ -130,9 +134,22 @@ export function RegisterForm({
                   type="text"
                   required
                   name="name"
+                  ref={name}
                   defaultValue={formState.enteredValues?.name?.toString()}
                 />
               </div>
+              <Button
+                type="button"
+                onClick={async () => {
+                  await startRegistration(
+                    email.current!.value,
+                    name.current!.value
+                  ) && navigate("/");
+                }}
+                className="w-full"
+              >
+                Register with passkey
+              </Button>
               <div className="grid gap-3">
                 <div className="flex items-center">
                   <Label htmlFor="password">Password</Label>
