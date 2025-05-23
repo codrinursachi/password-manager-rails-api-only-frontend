@@ -6,7 +6,7 @@ export async function networkFetch(
   method: string = "GET",
   body?: FormData
 ) {
-  const response = await fetch("http://127.0.0.1:3000/api/v1/" + address, {
+  const response = await fetch("/api/v1/" + address, {
     signal,
     method,
     headers: {

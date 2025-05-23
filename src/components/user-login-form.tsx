@@ -20,7 +20,7 @@ import startAuthentication from "@/util/passkey-util/passkey-authentication";
 async function loginAction(_prevState: unknown, formData: FormData) {
   const email = formData.get("email");
   const password = formData.get("password");
-  const response = await fetch("http://127.0.0.1:3000/api/v1/login", {
+  const response = await fetch("/api/v1/login", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

@@ -29,7 +29,7 @@ function SSHKeyDialog() {
         }
       }}
     >
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>
             {keyId ? "Edit" : "Create"} ssh key

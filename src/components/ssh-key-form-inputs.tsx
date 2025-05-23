@@ -7,10 +7,13 @@ import { decryptAES } from "@/util/crypt-utils/cryptography";
 import { useEffect, useState } from "react";
 import { generateKeyPair } from "web-ssh-keygen";
 import { querySSHKey } from "@/util/query-utils/query-ssh-key";
+import { Button } from "./ui/button";
+
 function SSHKeyFormInputs() {
   const id = useParams().keyId;
   const [privateKey, setPrivateKey] = useState("");
   const [publicKey, setPublicKey] = useState("");
+  const [privateKeyMasked, setPrivateKeyMasked] = useState(true);
   const { data } = useQuery({
     queryKey: ["individualSSHKey", id],
     queryFn: ({ signal }) => querySSHKey(id!, signal),
@@ -57,33 +60,74 @@ function SSHKeyFormInputs() {
         />
       </div>
       <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="private-key" className="text-right">
+        <Label
+          htmlFor="private-key"
+          className="flex flex-col items-start text-left mb-auto"
+        >
           Private key
+          <div>
+            <Button
+              variant={"ghost"}
+              type="button"
+              onClick={() =>
+                setPrivateKeyMasked((privateKeyMasked) => !privateKeyMasked)
+              }
+              className="h-5 w-5"
+            >
+              <i className="fas fa-eye" />
+            </Button>
+            <Button
+              variant={"ghost"}
+              type="button"
+              onClick={() => navigator.clipboard.writeText(privateKey)}
+              className="h-5 w-5"
+            >
+              <i className="fas fa-clipboard" />
+            </Button>
+          </div>
         </Label>
-        <Input
+        <Textarea
           id="private-key"
-          type="text"
-          className="col-span-3"
+          className="col-span-3 h-30"
+          name="sshkey[private_key]"
+          readOnly={true}
+          value={"•".repeat(privateKey.length)}
+          hidden={!privateKeyMasked}
+        />
+        <Textarea
+          id="private-key"
+          className="col-span-3 h-30 "
           name="sshkey[private_key]"
           readOnly={true}
           value={privateKey}
+          hidden={privateKeyMasked}
         />
       </div>
       <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="public-key" className="text-right">
+        <Label
+          htmlFor="public-key"
+          className="flex flex-col items-start text-right mb-auto"
+        >
           Public key
+          <Button
+            variant={"ghost"}
+            type="button"
+            onClick={() => navigator.clipboard.writeText(publicKey)}
+            className="h-5 w-5"
+          >
+            <i className="fas fa-clipboard" />
+          </Button>
         </Label>
-        <Input
+        <Textarea
           id="public-key"
-          type="text"
-          className="col-span-3"
+          className="col-span-3 h-30"
           name="sshkey[public_key]"
           readOnly={true}
           value={publicKey}
         />
       </div>
       <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="notes" className="text-right">
+        <Label htmlFor="notes" className="text-right mb-auto">
           Notes
         </Label>
         <Textarea

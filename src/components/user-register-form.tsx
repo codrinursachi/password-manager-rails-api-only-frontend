@@ -41,7 +41,7 @@ async function signupAction(_prevState: unknown, formData: FormData) {
   const { publicKey, privateKey } = await generateBase64RSAPair();
   keyStore.privateKey = await getPrivateKeyFromBase64(privateKey);
   const encryptedPrivateKeyWithIv = await encryptAES(privateKey);
-  const response = await fetch("http://127.0.0.1:3000/api/v1/register", {
+  const response = await fetch("/api/v1/register", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

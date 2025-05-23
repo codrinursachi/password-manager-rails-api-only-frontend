@@ -48,7 +48,10 @@ function UserNote({
       <CardTitle className="flex justify-end -mt-4 mr-2">
         <div
           className="hover:bg-slate-100 w-6 h-6 rounded-full text-center text-sm"
-          onClick={handleDelete}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleDelete();
+          }}
         >
           X
         </div>
@@ -57,7 +60,7 @@ function UserNote({
         {focused ? (
           textArea
         ) : (
-          <ScrollArea className="p-1 h-52">{text}</ScrollArea>
+            <ScrollArea className="p-1 h-52 whitespace-pre-wrap">{text}</ScrollArea>
         )}
       </CardContent>
     </Card>

@@ -20,7 +20,10 @@ type Folder = {
   name: string;
 };
 
-const LoginFormInputs: React.FC<{ isEditable: boolean }> = (props) => {
+const LoginFormInputs: React.FC<{
+  isEditable: boolean;
+  setValid: (valid: boolean) => void;
+}> = (props) => {
   const id = useParams().loginId;
   const { data } = useQuery({
     queryKey: ["individualLogin", id],
@@ -28,6 +31,16 @@ const LoginFormInputs: React.FC<{ isEditable: boolean }> = (props) => {
     initialData: useLoaderData(),
     enabled: !!id,
   });
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    if (
+      (document.getElementById("password") as HTMLInputElement).value &&
+      (document.getElementById("name") as HTMLInputElement).value &&
+      (document.getElementById("username") as HTMLInputElement).value &&
+      (document.getElementById("Url") as HTMLInputElement).value
+    ) {
+      props.setValid(true);
+    }
+  }
   const individualLogin = data?.individualLogin;
   const folders: Folder[] = useRouteLoaderData("data") || [];
   const selectedFolder = individualLogin?.folder_id;
@@ -46,7 +59,10 @@ const LoginFormInputs: React.FC<{ isEditable: boolean }> = (props) => {
   }, []);
   return (
     <div className="grid gap-4 py-4">
-      <div className="grid grid-cols-4 items-center gap-4">
+      <div
+        className="grid grid-cols-4 items-center gap-4"
+        onChange={handleChange}
+      >
         <Label htmlFor="name" className="text-right">
           Name
         </Label>
@@ -56,6 +72,7 @@ const LoginFormInputs: React.FC<{ isEditable: boolean }> = (props) => {
           name="login[name]"
           defaultValue={individualLogin?.name}
           readOnly={!props.isEditable}
+          required
         />
       </div>
       <div className="grid grid-cols-4 items-center gap-4">
@@ -68,6 +85,7 @@ const LoginFormInputs: React.FC<{ isEditable: boolean }> = (props) => {
           name="login[login_name]"
           defaultValue={individualLogin?.login_name}
           readOnly={!props.isEditable}
+          required
         />
       </div>
       <div className="grid grid-cols-4 items-center gap-4">
@@ -80,6 +98,7 @@ const LoginFormInputs: React.FC<{ isEditable: boolean }> = (props) => {
           className="col-span-3"
           name="login[login_password]"
           readOnly={!props.isEditable}
+          required
         />
       </div>
       <div className="grid grid-cols-4 items-center gap-4">
@@ -97,6 +116,7 @@ const LoginFormInputs: React.FC<{ isEditable: boolean }> = (props) => {
           name="login[urls_attributes][0][uri]"
           defaultValue={individualLogin?.urls[0]?.uri}
           readOnly={!props.isEditable}
+          required
         />
       </div>
       <div className="grid grid-cols-4 items-center gap-4">

@@ -16,6 +16,10 @@ const LoginDialog = () => {
   const isNew = useLocation().pathname.includes("new");
   const isEditable = useLocation().pathname.includes("edit");
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [valid, setValid] = useState(false);
+  const handleValid = (valid: boolean) => {
+    setValid(valid);
+  };
   useEffect(() => {
     setDialogOpen(loginId !== undefined || isNew);
   }, [loginId, isNew]);
@@ -41,7 +45,10 @@ const LoginDialog = () => {
           action={loginId ? `/logins/${loginId}` : "/logins"}
           encType="multipart/form-data"
         >
-          <LoginFormInputs isEditable={isEditable || isNew} />
+          <LoginFormInputs
+            isEditable={isEditable || isNew}
+            setValid={handleValid}
+          />
           <DialogFooter
             className="sm:justify-start"
             hidden={!isEditable && !isNew}
@@ -51,9 +58,9 @@ const LoginDialog = () => {
                 Close
               </Button>
             </DialogClose>
-            <DialogClose asChild>
-              <Button type="submit">Save</Button>
-            </DialogClose>
+            <Button type="submit" onClick={() => valid && setDialogOpen(false)}>
+              Save
+            </Button>
           </DialogFooter>
         </Form>
       </DialogContent>
