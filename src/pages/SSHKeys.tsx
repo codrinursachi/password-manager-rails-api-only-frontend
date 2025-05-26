@@ -15,9 +15,13 @@ function SSHKeysPage() {
     queryFn: ({ signal }) => querySSHKeys(signal),
   });
   return (
-    <div>
+    <div className="flex flex-col gap-4">
       <h1>SSH Keys</h1>
-      <Button variant="outline" onClick={() => navigate("/ssh-keys/new")}>
+      <Button
+        variant="outline"
+        onClick={() => navigate("/ssh-keys/new")}
+        className="w-46"
+      >
         Add SSH key
       </Button>
       <div className="flex flex-wrap gap-4">

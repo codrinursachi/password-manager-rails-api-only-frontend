@@ -37,7 +37,7 @@ const LoginsPage = () => {
   }
 
   return (
-    <div>
+    <div className="flex flex-col gap-4">
       <h1>Logins</h1>
       <form
         className="flex w-full max-w-sm items-center space-x-2"
@@ -46,7 +46,11 @@ const LoginsPage = () => {
         <Input type="text" name="search" />
         <Button type="submit">Search</Button>
       </form>
-      <Button variant="outline" onClick={() => navigate("/logins/new")}>
+      <Button
+        variant="outline"
+        onClick={() => navigate("/logins/new")}
+        className="w-46"
+      >
         Create login
       </Button>
       <LoginDialog />
@@ -95,7 +99,12 @@ export async function action({
   );
   formData.set("login[login_password]", passwordData.encryptedData);
   formData.set("login[iv]", passwordData.iv);
-  await networkFetch("logins/" + (loginId ? loginId : ""), undefined, method, formData);
+  await networkFetch(
+    "logins/" + (loginId ? loginId : ""),
+    undefined,
+    method,
+    formData
+  );
   queryClient.invalidateQueries({ queryKey: ["logins"] });
   return redirect("/logins");
 }

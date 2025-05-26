@@ -20,7 +20,7 @@ const SharedLoginsPage = () => {
     initialData: useLoaderData(),
   });
   return (
-    <div>
+    <div className="flex flex-col gap-4">
       <h1>Shared Logins</h1>
       <LoginDialog />
       <SharedLoginsTable sharedLogins={data.sharedLogins} />

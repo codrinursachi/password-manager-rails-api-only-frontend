@@ -17,7 +17,7 @@ function NotesPage() {
     return <div>Loading...</div>;
   }
   return (
-    <div className="flex flex-col w-full gap-4">
+    <div className="flex flex-col gap-4">
       <h1>Notes</h1>
       <Button
         variant="outline"

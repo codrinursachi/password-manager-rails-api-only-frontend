@@ -43,7 +43,10 @@ const LoginsTable: React.FC<{ logins: Login[] }> = (props) => {
             <TableCell>{login.login_name}</TableCell>
             <TableCell>
               <Link
-                to={"//" + login.urls[0]}
+                to={
+                  (login.urls[0].includes("http") && login.urls[0]) ||
+                  "//" + login.urls[0]
+                }
                 target="_blank"
                 rel="noopener noreferrer"
               >

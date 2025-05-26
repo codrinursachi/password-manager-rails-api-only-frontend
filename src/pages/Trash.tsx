@@ -13,7 +13,7 @@ const TrashPage = () => {
     initialData: useLoaderData(),
   });
   return (
-    <div>
+    <div className="flex flex-col gap-4">
       <h1>Trash Page</h1>
       <LoginDialog />
       <TrashedLoginsTable trashedLogins={data.trashedLogins} />
