@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useActionState, useEffect, useRef } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { generateAESKey } from "@/util/crypt-utils/generate-aes-key";
 import { keyStore } from "@/util/crypt-utils/key-store";
@@ -61,6 +61,7 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const [loginWithPassword, setLoginWithPassword] = useState(false);
   const [formState, formAction, pending] = useActionState(loginAction, {
     error: null,
   });
@@ -84,13 +85,16 @@ export function LoginForm({
         <CardHeader>
           <CardTitle>Login to your account</CardTitle>
           <CardDescription>
-            Enter your email below to login to your account
+            Enter your {loginWithPassword ? "password" : "email"} below to login
+            to your account
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form action={formAction}>
             <div className="flex flex-col gap-6">
-              <div className="grid gap-3">
+              <div
+                className={"grid gap-3" + (loginWithPassword ? " hidden" : "")}
+              >
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
@@ -104,7 +108,7 @@ export function LoginForm({
               </div>
               <Button
                 type="button"
-                className="w-full"
+                className={"w-full" + (loginWithPassword ? " hidden" : "")}
                 onClick={async () => {
                   (await startAuthentication(email.current?.value!)) &&
                     navigate("/");
@@ -112,7 +116,9 @@ export function LoginForm({
               >
                 Login with passkey
               </Button>
-              <div className="grid gap-3">
+              <div
+                className={"grid gap-3" + (!loginWithPassword ? " hidden" : "")}
+              >
                 <div className="flex items-center">
                   <Label htmlFor="password">Password</Label>
                 </div>
@@ -121,10 +127,24 @@ export function LoginForm({
                   type="password"
                   name="password"
                   required
+                  minLength={6}
                   defaultValue={formState.enteredValues?.password?.toString()}
                 />
               </div>
-              <Button type="submit" className="w-full" disabled={pending}>
+              <Button
+                type="button"
+                className={"w-full" + (loginWithPassword ? " hidden" : "")}
+                onClick={() =>
+                  email.current?.reportValidity() && setLoginWithPassword(true)
+                }
+              >
+                Login with password
+              </Button>
+              <Button
+                type="submit"
+                className={"w-full" + (!loginWithPassword ? " hidden" : "")}
+                disabled={pending}
+              >
                 Login
               </Button>
             </div>

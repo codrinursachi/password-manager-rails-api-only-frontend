@@ -10,7 +10,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link, useNavigate } from "react-router";
-import { useActionState, useEffect, useRef } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { generateSalt } from "@/util/crypt-utils/generate-salt";
 import { generateAESKey } from "@/util/crypt-utils/generate-aes-key";
 import { keyStore } from "@/util/crypt-utils/key-store";
@@ -84,6 +84,7 @@ export function RegisterForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const [registerWithPassword, setRegisterWithPassword] = useState(false);
   const [formState, formAction, pending] = useActionState(signupAction, {
     error: null,
   });
@@ -107,77 +108,93 @@ export function RegisterForm({
         <CardHeader>
           <CardTitle>Register an account</CardTitle>
           <CardDescription>
-            Enter your email below to register an account
+            Enter your {!registerWithPassword ? "email" : "password"} below to
+            register an account
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form action={formAction}>
             <div className="flex flex-col gap-6">
-              <div className="grid gap-3">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="m@example.com"
-                  required
-                  name="email"
-                  ref={email}
-                  defaultValue={formState.enteredValues?.email?.toString()}
-                />
-              </div>
-              <div className="grid gap-3">
-                <div className="flex items-center">
-                  <Label htmlFor="name">Name</Label>
+              <div className={"flex flex-col gap-6"+( registerWithPassword ? " hidden" : "")}>
+                <div className="grid gap-3">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="m@example.com"
+                    required
+                    name="email"
+                    ref={email}
+                    defaultValue={formState.enteredValues?.email?.toString()}
+                  />
                 </div>
-                <Input
-                  id="name"
-                  type="text"
-                  required
-                  name="name"
-                  ref={name}
-                  defaultValue={formState.enteredValues?.name?.toString()}
-                />
+                <div className="grid gap-3">
+                  <div className="flex items-center">
+                    <Label htmlFor="name">Name</Label>
+                  </div>
+                  <Input
+                    id="name"
+                    type="text"
+                    required
+                    name="name"
+                    ref={name}
+                    defaultValue={formState.enteredValues?.name?.toString()}
+                  />
+                </div>
+                <Button
+                  type="button"
+                  onClick={async () => {
+                    (await startRegistration(
+                      email.current!.value,
+                      name.current!.value
+                    )) && navigate("/");
+                  }}
+                  className="w-full"
+                >
+                  Register with passkey
+                </Button>
+              </div>
+              <div className={"flex flex-col gap-6"+(registerWithPassword ? "" : " hidden")}>
+                <div className="grid gap-3">
+                  <div className="flex items-center">
+                    <Label htmlFor="password">Password</Label>
+                  </div>
+                  <Input
+                    id="password"
+                    type="password"
+                    required
+                    name="password"
+                    defaultValue={formState.enteredValues?.password?.toString()}
+                  />
+                </div>
+                <div className="grid gap-3">
+                  <div className="flex items-center">
+                    <Label htmlFor="password-confirmation">
+                      Password confirmation
+                    </Label>
+                  </div>
+                  <Input
+                    id="password-confirmation"
+                    type="password"
+                    required
+                    name="password-confirmation"
+                    defaultValue={formState.enteredValues?.passwordConfirmation?.toString()}
+                  />
+                </div>
+                <Button type="submit" className="w-full" disabled={pending}>
+                  Register
+                </Button>
               </div>
               <Button
                 type="button"
-                onClick={async () => {
-                  await startRegistration(
-                    email.current!.value,
-                    name.current!.value
-                  ) && navigate("/");
-                }}
-                className="w-full"
+                className={"w-full" + (registerWithPassword ? " hidden" : "")}
+                onClick={() =>
+                  email.current?.reportValidity() &&
+                  name.current?.reportValidity() &&
+                  setRegisterWithPassword(true)
+                }
               >
-                Register with passkey
-              </Button>
-              <div className="grid gap-3">
-                <div className="flex items-center">
-                  <Label htmlFor="password">Password</Label>
-                </div>
-                <Input
-                  id="password"
-                  type="password"
-                  required
-                  name="password"
-                  defaultValue={formState.enteredValues?.password?.toString()}
-                />
-              </div>
-              <div className="grid gap-3">
-                <div className="flex items-center">
-                  <Label htmlFor="password-confirmation">
-                    Password confirmation
-                  </Label>
-                </div>
-                <Input
-                  id="password-confirmation"
-                  type="password"
-                  required
-                  name="password-confirmation"
-                  defaultValue={formState.enteredValues?.passwordConfirmation?.toString()}
-                />
-              </div>
-              <Button type="submit" className="w-full" disabled={pending}>
-                Register
+                Register with password
               </Button>
             </div>
             <div className="mt-4 text-center text-sm">

@@ -25,8 +25,8 @@ import {
   combinedTrashLoginsLoader,
   rootLoader,
 } from "./util/combined-loaders.ts";
-import NotesPage from "./pages/Notes.tsx";
-import SSHKeysPage, { action as sSSHAction } from "./pages/SSHKeys.tsx";
+import NotesPage, { action as notesAction } from "./pages/Notes.tsx";
+import SSHKeysPage, { action as sshAction } from "./pages/SSHKeys.tsx";
 
 const router = createBrowserRouter([
   {
@@ -101,11 +101,21 @@ const router = createBrowserRouter([
       {
         path: "notes",
         element: <NotesPage />,
+        action: notesAction
+      },
+      {
+        path: "notes/new",
+        element: <NotesPage />,
+      },
+      {
+        path: "notes/:noteId",
+        element: <NotesPage />,
+        action: notesAction,
       },
       {
         path: "ssh-keys",
         element: <SSHKeysPage />,
-        action: sSSHAction,
+        action: sshAction,
       },
       {
         path: "ssh-keys/new",
@@ -114,7 +124,7 @@ const router = createBrowserRouter([
       {
         path: "ssh-keys/:keyId",
         element: <SSHKeysPage />,
-        action: sSSHAction,
+        action: sshAction,
       },
     ],
   },
