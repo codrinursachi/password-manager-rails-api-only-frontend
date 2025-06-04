@@ -9,7 +9,7 @@ import { generateBase64RSAPair } from "../crypt-utils/generate-base64-rsa";
 const startRegistration = async (email: string, name: string) => {
   const salt = generateSalt();
   const response = await fetch(
-    "//localhost:3000/api/v1/webauthn/registration_options",
+    "/api/v1/webauthn/registration_options",
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -49,7 +49,7 @@ const startRegistration = async (email: string, name: string) => {
   };
 
   const verification = await fetch(
-    "//localhost:3000/api/v1/webauthn/register",
+    "/api/v1/webauthn/register",
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },

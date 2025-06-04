@@ -6,7 +6,7 @@ import { getPrivateKeyFromBase64 } from "../crypt-utils/get-private-rsa-key-from
 
 const startAuthentication = async (email: string) => {
   const response = await fetch(
-    "//localhost:3000/api/v1/webauthn/authentication_options",
+    "/api/v1/webauthn/authentication_options",
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -50,7 +50,7 @@ const startAuthentication = async (email: string) => {
   };
 
   const verification = await fetch(
-    "//localhost:3000/api/v1/webauthn/authenticate",
+    "/api/v1/webauthn/authenticate",
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
