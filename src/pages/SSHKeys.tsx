@@ -45,11 +45,13 @@ export async function action({
   const keyId = params.keyId;
   const method = request.method.toUpperCase();
   const formData = await request.formData();
-  const privateKeyData = await encryptAES(
-    formData.get("sshkey[private_key]")?.toString()!
-  );
-  formData.set("sshkey[private_key]", privateKeyData.encryptedData);
-  formData.set("sshkey[iv]", privateKeyData.iv);
+  if (method !== "DELETE") {
+    const privateKeyData = await encryptAES(
+      formData.get("sshkey[private_key]")?.toString()!
+    );
+    formData.set("sshkey[private_key]", privateKeyData.encryptedData);
+    formData.set("sshkey[iv]", privateKeyData.iv);
+  }
   await networkFetch(
     "sshkeys/" + (keyId ? keyId : ""),
     undefined,

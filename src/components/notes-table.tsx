@@ -1,4 +1,4 @@
-import { Link } from "react-router";
+import { Form, Link } from "react-router";
 import {
   Table,
   TableHeader,
@@ -9,6 +9,15 @@ import {
 } from "./ui/table";
 import React, { useEffect, useState } from "react";
 import { decryptAES } from "@/util/crypt-utils/cryptography";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "./ui/dialog";
+import { Button } from "./ui/button";
 
 type note = {
   id: number;
@@ -39,6 +48,7 @@ const NotesTable: React.FC<{ notes: note[] }> = (props) => {
       <TableHeader>
         <TableRow>
           <TableHead key="name">Name</TableHead>
+          <TableHead key="actions" className="w-14">Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -48,6 +58,32 @@ const NotesTable: React.FC<{ notes: note[] }> = (props) => {
               <Link to={"/notes/" + note.id}>
                 <div className="w-full">{note.name}</div>
               </Link>
+            </TableCell>
+            <TableCell>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant={"ghost"} className="cursor-pointer">
+                    <i className="fas fa-trash-can" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>
+                      Are you sure you want to delete note?
+                    </DialogTitle>
+                  </DialogHeader>
+                  <DialogFooter>
+                    <DialogTrigger asChild>
+                      <Button variant="outline">Cancel</Button>
+                    </DialogTrigger>
+                    <Form method="delete" action={"/notes/" + note.id}>
+                      <Button type="submit" variant="destructive">
+                        Delete
+                      </Button>
+                    </Form>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             </TableCell>
           </TableRow>
         ))}

@@ -14,6 +14,8 @@ import { useLoaderData, useParams, useRouteLoaderData } from "react-router";
 import { queryLogin } from "@/util/query-utils/query-login";
 import { decryptAES } from "@/util/crypt-utils/cryptography";
 import React, { useEffect } from "react";
+import { Button } from "./ui/button";
+import PasswordGeneratorDialog from "./password-generator-dialog";
 
 type Folder = {
   id: number;
@@ -25,20 +27,29 @@ const LoginFormInputs: React.FC<{
   setValid: (valid: boolean) => void;
 }> = (props) => {
   const id = useParams().loginId;
+  const nameRef = React.useRef<HTMLInputElement>(null);
+  const usernameRef = React.useRef<HTMLInputElement>(null);
+  const urlRef = React.useRef<HTMLInputElement>(null);
+  const [password, setPassword] = React.useState("");
+  function changePassword(password: string) {
+    setPassword(password);
+  }
   const { data } = useQuery({
     queryKey: ["individualLogin", id],
     queryFn: ({ signal }) => queryLogin(id!, signal),
     initialData: useLoaderData(),
     enabled: !!id,
   });
-  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+  function handleChange() {
     if (
-      (document.getElementById("password") as HTMLInputElement).value &&
-      (document.getElementById("name") as HTMLInputElement).value &&
-      (document.getElementById("username") as HTMLInputElement).value &&
-      (document.getElementById("Url") as HTMLInputElement).value
+      password &&
+      nameRef.current!.value &&
+      usernameRef.current!.value &&
+      urlRef.current!.value
     ) {
       props.setValid(true);
+    } else {
+      props.setValid(false);
     }
   }
   const individualLogin = data?.individualLogin;
@@ -50,8 +61,7 @@ const LoginFormInputs: React.FC<{
         individualLogin?.login_password,
         individualLogin?.iv
       );
-      (document.getElementById("password") as HTMLInputElement).value =
-        password;
+      setPassword(password);
     };
     if (id) {
       decryptPass();
@@ -73,6 +83,7 @@ const LoginFormInputs: React.FC<{
           defaultValue={individualLogin?.name}
           readOnly={!props.isEditable}
           required
+          ref={nameRef}
         />
       </div>
       <div className="grid grid-cols-4 items-center gap-4">
@@ -86,6 +97,7 @@ const LoginFormInputs: React.FC<{
           defaultValue={individualLogin?.login_name}
           readOnly={!props.isEditable}
           required
+          ref={usernameRef}
         />
       </div>
       <div className="grid grid-cols-4 items-center gap-4">
@@ -99,8 +111,13 @@ const LoginFormInputs: React.FC<{
           name="login[login_password]"
           readOnly={!props.isEditable}
           required
+          value={password}
+          onChange={(e) => {
+            setPassword(e.target.value);
+          }}
         />
       </div>
+      <PasswordGeneratorDialog setLoginPassword={changePassword} />
       <div className="grid grid-cols-4 items-center gap-4">
         <Label htmlFor="Url" className="text-right">
           Url
@@ -117,6 +134,7 @@ const LoginFormInputs: React.FC<{
           defaultValue={individualLogin?.urls[0]?.uri}
           readOnly={!props.isEditable}
           required
+          ref={urlRef}
         />
       </div>
       <div className="grid grid-cols-4 items-center gap-4">

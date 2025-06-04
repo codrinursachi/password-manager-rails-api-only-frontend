@@ -40,19 +40,21 @@ export async function action({
   params,
 }: {
   request: Request;
-  params: { keyId?: string };
+  params: { noteId?: string };
 }) {
-  const keyId = params.keyId;
+  const keyId = params.noteId;
   const method = request.method.toUpperCase();
   const formData = await request.formData();
-  const [encryptedNoteName, encryptedNoteText] = await Promise.all([
-    encryptAES(formData.get("note[name]")?.toString()!),
-    encryptAES(formData.get("note[text]")?.toString()!),
-  ]);
-  formData.set("note[name]", encryptedNoteName.encryptedData);
-  formData.set("note[name_iv]", encryptedNoteName.iv);
-  formData.set("note[text]", encryptedNoteText.encryptedData);
-  formData.set("note[iv]", encryptedNoteText.iv);
+  if (method !== "DELETE") {
+    const [encryptedNoteName, encryptedNoteText] = await Promise.all([
+      encryptAES(formData.get("note[name]")?.toString()!),
+      encryptAES(formData.get("note[text]")?.toString()!),
+    ]);
+    formData.set("note[name]", encryptedNoteName.encryptedData);
+    formData.set("note[name_iv]", encryptedNoteName.iv);
+    formData.set("note[text]", encryptedNoteText.encryptedData);
+    formData.set("note[iv]", encryptedNoteText.iv);
+  }
   await networkFetch(
     "notes/" + (keyId ? keyId : ""),
     undefined,
