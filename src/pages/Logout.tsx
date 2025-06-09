@@ -1,6 +1,6 @@
 import { redirect } from "react-router";
 
 export function action() {
-  localStorage.clear();
-  return redirect("/login");
+    localStorage.clear();
+    return redirect("/login");
 }
