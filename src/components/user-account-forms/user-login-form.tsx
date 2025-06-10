@@ -9,74 +9,36 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useActionState, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router";
-import { generateAESKey } from "@/util/crypt-utils/generate-aes-key";
-import { keyStore } from "@/util/crypt-utils/key-store";
-import { decryptAES } from "@/util/crypt-utils/cryptography";
-import { getPrivateKeyFromBase64 } from "@/util/crypt-utils/get-private-rsa-key-from-base64";
 import startAuthentication from "@/util/passkey-util/passkey-authentication";
 import { Alert, AlertTitle } from "../ui/alert";
 import { AlertCircleIcon } from "lucide-react";
-
-async function loginAction(_prevState: unknown, formData: FormData) {
-    const email = formData.get("email");
-    const password = formData.get("password");
-    const response = await fetch("/api/v1/login", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-        },
-        body: JSON.stringify({
-            user: {
-                email,
-                password,
-            },
-        }),
-    });
-    if (!response.ok) {
-        return {
-            error: await response.json().then((data) => data.error),
-            enteredValues: { email, password },
-        };
-    }
-    const data = response.headers.get("Authorization");
-    if (data) {
-        const json = await response.json();
-        localStorage.setItem("token", data);
-        const expiration = new Date();
-        expiration.setMinutes(expiration.getMinutes() + 30);
-        localStorage.setItem("expiration", expiration.toString());
-        keyStore.key = await generateAESKey(password?.toString()!, json.salt);
-        const decryptedBase64Key = await decryptAES(
-            json.private_key,
-            json.private_key_iv
-        );
-        keyStore.privateKey = await getPrivateKeyFromBase64(decryptedBase64Key);
-        window.addEventListener("beforeunload", () => localStorage.clear());
-    }
-    return { error: null };
-}
+import { useMutation } from "@tanstack/react-query";
+import { mutateLogin } from "@/util/user-account-utils/mutate-login";
 
 export function LoginForm({
     className,
     ...props
 }: React.ComponentProps<"div">) {
+    const email = useRef<HTMLInputElement>(null);
     const [loginWithPassword, setLoginWithPassword] = useState(false);
-    const [formState, formAction, pending] = useActionState(loginAction, {
-        error: null,
-    });
     const navigate = useNavigate();
+    const loginMutation = useMutation({
+        mutationFn: (event: React.FormEvent<HTMLFormElement>) => {
+            event.preventDefault();
+            return mutateLogin(new FormData(event.target as HTMLFormElement));
+        },
+    });
     useEffect(() => {
-        if (!formState.error) {
-            localStorage.getItem("token") && navigate("/");
-        } else {
+        if (loginMutation.error) {
             setLoginWithPassword(false);
         }
-    }, [formState]);
-
-    const email = useRef<HTMLInputElement>(null);
+    }, [loginMutation.error]);
+    if (loginMutation.isSuccess) {
+        loginMutation.reset();
+        navigate("/");
+    }
 
     return (
         <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -89,7 +51,7 @@ export function LoginForm({
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <form action={formAction}>
+                    <form onSubmit={loginMutation.mutate}>
                         <div className="flex flex-col gap-6">
                             <div
                                 className={
@@ -105,7 +67,6 @@ export function LoginForm({
                                     placeholder="m@example.com"
                                     required
                                     ref={email}
-                                    defaultValue={formState.enteredValues?.email?.toString()}
                                 />
                             </div>
                             <Button
@@ -137,7 +98,6 @@ export function LoginForm({
                                     name="password"
                                     required
                                     minLength={6}
-                                    defaultValue={formState.enteredValues?.password?.toString()}
                                 />
                             </div>
                             <Button
@@ -159,14 +119,16 @@ export function LoginForm({
                                     "w-full" +
                                     (!loginWithPassword ? " hidden" : "")
                                 }
-                                disabled={pending}
+                                disabled={loginMutation.isPending}
                             >
                                 Login
                             </Button>
-                            {formState.error && (
+                            {loginMutation.error && (
                                 <Alert variant="destructive">
                                     <AlertCircleIcon />
-                                    <AlertTitle>{formState.error}</AlertTitle>
+                                    <AlertTitle>
+                                        {loginMutation.error.message}
+                                    </AlertTitle>
                                 </Alert>
                             )}
                         </div>
