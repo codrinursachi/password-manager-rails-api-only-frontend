@@ -3,6 +3,7 @@ import {
     Dialog,
     DialogClose,
     DialogContent,
+    DialogDescription,
     DialogFooter,
     DialogHeader,
     DialogTitle,
@@ -10,6 +11,8 @@ import {
 import { Form, useLocation, useNavigate, useParams } from "react-router";
 import { useEffect, useState } from "react";
 import SSHKeyFormInputs from "./ssh-key-form-inputs";
+import { useMutation } from "@tanstack/react-query";
+import { mutateSSHKey } from "@/util/mutate-utils/mutate-ssh-key";
 
 function SSHKeyDialog() {
     const keyId = useParams().keyId;
@@ -19,6 +22,14 @@ function SSHKeyDialog() {
         setDialogOpen(keyId !== undefined || isNew);
     }, [keyId, isNew]);
     const navigate = useNavigate();
+    const sshKeyMutation = useMutation({
+        mutationFn: async (event: React.FormEvent<HTMLFormElement>) => {
+            event.preventDefault();
+            const formData = new FormData(event.target as HTMLFormElement);
+            const method = keyId ? "PATCH" : "POST";
+            mutateSSHKey(formData, keyId, method);
+        },
+    });
     return (
         <Dialog
             open={dialogOpen}
@@ -35,9 +46,11 @@ function SSHKeyDialog() {
                         {keyId ? "Edit" : "Create"} ssh key
                     </DialogTitle>
                 </DialogHeader>
-                <Form
-                    method={keyId ? "patch" : "post"}
-                    action={keyId ? `/ssh-keys/${keyId}` : "/ssh-keys/"}
+                <DialogDescription className="hidden">
+                    {keyId ? "Edit" : "Create"} ssh key
+                </DialogDescription>
+                <form
+                    onSubmit={sshKeyMutation.mutate}
                     encType="multipart/form-data"
                 >
                     <SSHKeyFormInputs />
@@ -51,7 +64,7 @@ function SSHKeyDialog() {
                             <Button type="submit">Save</Button>
                         </DialogClose>
                     </DialogFooter>
-                </Form>
+                </form>
             </DialogContent>
         </Dialog>
     );

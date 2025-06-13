@@ -9,6 +9,7 @@ import {
 } from "../ui/table";
 import SharedLoginDropdown from "./shared-login-dropdown";
 import React from "react";
+import { TableContentSkeleton } from "../skeletons/table-content-skeleton";
 
 type SharedLogin = {
     login_id: number;
@@ -44,7 +45,8 @@ const SharedLoginsTable: React.FC<{ sharedLogins: SharedLogin[] }> = (
                 </TableRow>
             </TableHeader>
             <TableBody>
-                {props.sharedLogins.map((login) => (
+                {!props.sharedLogins && <TableContentSkeleton cellNumber={5} />}
+                {props.sharedLogins?.map((login) => (
                     <TableRow key={login.login_id}>
                         <TableCell>
                             <Link

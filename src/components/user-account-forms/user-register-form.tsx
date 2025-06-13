@@ -15,7 +15,7 @@ import startRegistration from "@/util/passkey-util/passkey-registration";
 import { Alert, AlertTitle } from "../ui/alert";
 import { AlertCircleIcon } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
-import { mutateRegistration } from "@/util/user-account-utils/mutate-registration";
+import { mutateUserRegistration } from "@/util/mutate-utils/mutate-user-registration";
 
 export function RegisterForm({
     className,
@@ -28,7 +28,7 @@ export function RegisterForm({
     const registrationMutation = useMutation({
         mutationFn: (event: React.FormEvent<HTMLFormElement>) => {
             event.preventDefault();
-            return mutateRegistration(
+            return mutateUserRegistration(
                 new FormData(event.target as HTMLFormElement)
             );
         },

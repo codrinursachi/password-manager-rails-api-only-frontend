@@ -6,16 +6,19 @@ import {
     DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import React, { useState } from "react";
-import { Form } from "react-router";
 import { Button } from "../ui/button";
 import {
     Dialog,
+    DialogClose,
     DialogContent,
+    DialogDescription,
     DialogFooter,
     DialogHeader,
     DialogTitle,
     DialogTrigger,
 } from "../ui/dialog";
+import { useMutation } from "@tanstack/react-query";
+import { mutateTrashedLogin } from "@/util/mutate-utils/mutate-trashed-login";
 
 type TrashedLogin = {
     login_id: number;
@@ -23,6 +26,21 @@ type TrashedLogin = {
 
 const TrashedLoginDropdown: React.FC<{ login: TrashedLogin }> = (props) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const trashedLoginMutation = useMutation({
+        mutationFn: async ({
+            event,
+            loginId,
+            method,
+        }: {
+            event: React.FormEvent<HTMLFormElement>;
+            loginId: number;
+            method: "DELETE" | "PATCH";
+        }) => {
+            event.preventDefault();
+            mutateTrashedLogin(loginId.toString(), method);
+        },
+    });
+
     return (
         <DropdownMenu
             modal={false}
@@ -34,12 +52,17 @@ const TrashedLoginDropdown: React.FC<{ login: TrashedLogin }> = (props) => {
             </DropdownMenuTrigger>
             <DropdownMenuContent side="left" align="start">
                 <DropdownMenuItem>
-                    <Form
-                        method="patch"
-                        action={"/trash/" + props.login.login_id}
+                    <form
+                        onSubmit={(event) =>
+                            trashedLoginMutation.mutate({
+                                event,
+                                loginId: props.login.login_id,
+                                method: "PATCH",
+                            })
+                        }
                     >
                         <button type="submit">Restore login</button>
-                    </Form>
+                    </form>
                 </DropdownMenuItem>
                 <Dialog>
                     <DialogTrigger asChild>
@@ -55,18 +78,28 @@ const TrashedLoginDropdown: React.FC<{ login: TrashedLogin }> = (props) => {
                                 Are you sure you want to delete login?
                             </DialogTitle>
                         </DialogHeader>
+                        <DialogDescription className="hidden">
+                            Delete login.
+                        </DialogDescription>
                         <DialogFooter>
-                            <DialogTrigger asChild>
+                            <DialogClose asChild>
                                 <Button variant="outline">Cancel</Button>
-                            </DialogTrigger>
-                            <Form
-                                method="delete"
-                                action={"/trash/" + props.login.login_id}
+                            </DialogClose>
+                            <form
+                                onSubmit={(event) =>
+                                    trashedLoginMutation.mutate({
+                                        event,
+                                        loginId: props.login.login_id,
+                                        method: "DELETE",
+                                    })
+                                }
                             >
-                                <Button type="submit" variant="destructive">
-                                    Delete
-                                </Button>
-                            </Form>
+                                <DialogClose asChild>
+                                    <Button type="submit" variant="destructive">
+                                        Delete
+                                    </Button>
+                                </DialogClose>
+                            </form>
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>

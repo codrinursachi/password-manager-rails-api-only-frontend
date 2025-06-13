@@ -10,11 +10,12 @@ import {
     SelectValue,
 } from "../ui/select";
 import { Textarea } from "../ui/textarea";
-import { useLoaderData, useParams, useRouteLoaderData } from "react-router";
+import { useParams } from "react-router";
 import { queryLogin } from "@/util/query-utils/query-login";
 import { decryptAES } from "@/util/crypt-utils/cryptography";
 import React, { useEffect } from "react";
 import PasswordGeneratorDialog from "./password-generator-dialog";
+import { queryFolders } from "@/util/query-utils/query-folders";
 
 type Folder = {
     id: number;
@@ -36,7 +37,6 @@ const LoginFormInputs: React.FC<{
     const { data } = useQuery({
         queryKey: ["individualLogin", id],
         queryFn: ({ signal }) => queryLogin(id!, signal),
-        initialData: useLoaderData(),
         enabled: !!id,
     });
     function handleChange() {
@@ -52,7 +52,10 @@ const LoginFormInputs: React.FC<{
         }
     }
     const individualLogin = data?.individualLogin;
-    const folders: Folder[] = useRouteLoaderData("data") || [];
+    const { data: folders } = useQuery({
+        queryKey: ["folders"],
+        queryFn: ({ signal }) => queryFolders(signal),
+    });
     const selectedFolder = individualLogin?.folder_id;
     useEffect(() => {
         const decryptPass = async () => {
@@ -62,16 +65,13 @@ const LoginFormInputs: React.FC<{
             );
             setPassword(password);
         };
-        if (id) {
+        if (id && individualLogin) {
             decryptPass();
         }
     }, []);
     return (
-        <div className="grid gap-4 py-4">
-            <div
-                className="grid grid-cols-4 items-center gap-4"
-                onChange={handleChange}
-            >
+        <div className="grid gap-4 py-4" onChange={handleChange}>
+            <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="name" className="text-right">
                     Name
                 </Label>
@@ -197,7 +197,10 @@ const LoginFormInputs: React.FC<{
                         selectedFolder
                             ? selectedFolder.toString()
                             : folders
-                                  .find((folder) => folder.name === "No folder")
+                                  .find(
+                                      (folder: Folder) =>
+                                          folder.name === "No folder"
+                                  )
                                   ?.id.toString()
                     }
                     disabled={!props.isEditable}

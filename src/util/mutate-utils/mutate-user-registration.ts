@@ -5,7 +5,7 @@ import { generateBase64RSAPair } from "@/util/crypt-utils/generate-base64-rsa";
 import { encryptAES } from "@/util/crypt-utils/cryptography";
 import { getPrivateKeyFromBase64 } from "@/util/crypt-utils/get-private-rsa-key-from-base64";
 
-export async function mutateRegistration(formData: FormData) {
+export async function mutateUserRegistration(formData: FormData) {
     const email = formData.get("email");
     const name = formData.get("name");
     const password = formData.get("password")!;

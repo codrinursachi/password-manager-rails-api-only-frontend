@@ -3,16 +3,25 @@ import {
     Dialog,
     DialogClose,
     DialogContent,
+    DialogDescription,
     DialogFooter,
     DialogTitle,
     DialogTrigger,
 } from "../ui/dialog";
 import { SidebarGroupAction, SidebarGroupLabel } from "../ui/sidebar";
-import { Form } from "react-router";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
+import { mutateFolder } from "@/util/mutate-utils/mutate-folder";
+import { useMutation } from "@tanstack/react-query";
 
 function SidebarUserFoldersGroupLabel() {
+    const folderMutation = useMutation({
+        mutationFn: async (event: React.FormEvent<HTMLFormElement>) => {
+            event.preventDefault();
+            const formData = new FormData(event.target as HTMLFormElement);
+            mutateFolder(formData, null, "POST");
+        },
+    });
     return (
         <>
             <SidebarGroupLabel>Folders</SidebarGroupLabel>
@@ -24,7 +33,10 @@ function SidebarUserFoldersGroupLabel() {
                 </DialogTrigger>
                 <DialogContent>
                     <DialogTitle>Add folder</DialogTitle>
-                    <Form method="post" action="/folders">
+                    <DialogDescription className="hidden">
+                        Enter folder name
+                    </DialogDescription>
+                    <form onSubmit={folderMutation.mutate}>
                         <Input type="text" name="folder[name]" />
                         <br />
                         <DialogFooter>
@@ -32,7 +44,7 @@ function SidebarUserFoldersGroupLabel() {
                                 <Button type="submit">Create</Button>
                             </DialogClose>
                         </DialogFooter>
-                    </Form>
+                    </form>
                 </DialogContent>
             </Dialog>
         </>

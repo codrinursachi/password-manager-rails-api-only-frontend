@@ -10,6 +10,7 @@ import {
     Dialog,
     DialogClose,
     DialogContent,
+    DialogDescription,
     DialogFooter,
     DialogHeader,
     DialogTitle,
@@ -17,13 +18,29 @@ import {
 } from "../ui/dialog";
 import { Button } from "../ui/button";
 import React, { useState } from "react";
-import { Form } from "react-router";
 import { Input } from "../ui/input";
+import { useMutation } from "@tanstack/react-query";
+import { mutateFolder } from "@/util/mutate-utils/mutate-folder";
 
 const FoldersDropdown: React.FC<{ folder: { id: number; name: string } }> = (
     props
 ) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const folderMutation = useMutation({
+        mutationFn: async ({
+            event,
+            method,
+            folderId,
+        }: {
+            event: React.FormEvent<HTMLFormElement>;
+            method: "PATCH" | "DELETE";
+            folderId: number;
+        }) => {
+            event.preventDefault();
+            const formData = new FormData(event.target as HTMLFormElement);
+            mutateFolder(formData, folderId.toString(), method);
+        },
+    });
     return (
         <DropdownMenu
             open={dropdownOpen}
@@ -50,15 +67,18 @@ const FoldersDropdown: React.FC<{ folder: { id: number; name: string } }> = (
                         <DialogHeader>
                             <DialogTitle>Rename folder</DialogTitle>
                         </DialogHeader>
-                        <Form
-                            method="patch"
-                            action={"/folders/" + props.folder.id}
+                        <DialogDescription className="hidden">
+                            Enter folder name
+                        </DialogDescription>
+                        <form
+                            onSubmit={(event) => {
+                                folderMutation.mutate({
+                                    event,
+                                    method: "PATCH",
+                                    folderId: props.folder.id,
+                                });
+                            }}
                         >
-                            <input
-                                type="hidden"
-                                name="id"
-                                value="props.folder.id"
-                            />
                             <Input
                                 type="text"
                                 name="folder[name]"
@@ -77,7 +97,7 @@ const FoldersDropdown: React.FC<{ folder: { id: number; name: string } }> = (
                                     </Button>
                                 </DialogClose>
                             </DialogFooter>
-                        </Form>
+                        </form>
                     </DialogContent>
                 </Dialog>
                 <Dialog>
@@ -97,23 +117,31 @@ const FoldersDropdown: React.FC<{ folder: { id: number; name: string } }> = (
                                 folder?
                             </DialogTitle>
                         </DialogHeader>
-                        <Form
-                            method="delete"
-                            action={"/folders/" + props.folder.id}
-                        >
-                            <DialogFooter>
-                                <DialogClose asChild>
-                                    <Button
-                                        type="button"
-                                        variant="secondary"
-                                        onClick={() => {
-                                            setDropdownOpen(false);
-                                        }}
-                                    >
-                                        Cancel
-                                    </Button>
-                                </DialogClose>
-                                <DialogClose asChild>
+                        <DialogDescription className="hidden">
+                            Remove folder
+                        </DialogDescription>
+                        <DialogFooter>
+                            <DialogClose asChild>
+                                <Button
+                                    type="button"
+                                    variant="secondary"
+                                    onClick={() => {
+                                        setDropdownOpen(false);
+                                    }}
+                                >
+                                    Cancel
+                                </Button>
+                            </DialogClose>
+                            <DialogClose asChild>
+                                <form
+                                    onSubmit={(event) => {
+                                        folderMutation.mutate({
+                                            event,
+                                            method: "DELETE",
+                                            folderId: props.folder.id,
+                                        });
+                                    }}
+                                >
                                     <Button
                                         type="submit"
                                         variant="destructive"
@@ -123,9 +151,9 @@ const FoldersDropdown: React.FC<{ folder: { id: number; name: string } }> = (
                                     >
                                         Yes
                                     </Button>
-                                </DialogClose>
-                            </DialogFooter>
-                        </Form>
+                                </form>
+                            </DialogClose>
+                        </DialogFooter>
                     </DialogContent>
                 </Dialog>
             </DropdownMenuContent>

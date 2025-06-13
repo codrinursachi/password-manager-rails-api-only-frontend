@@ -1,144 +1,98 @@
 import { createBrowserRouter, Navigate, RouterProvider } from "react-router";
 import LoginPage from "./pages/Login";
-import LoginsPage, {
-  loader as loginsLoader,
-  action as LoginAction,
-} from "./pages/Logins";
-import { action as folderAction } from "./pages/Folders";
 import RootLayout from "./pages/RootLayout";
 import RegisterPage from "./pages/Register";
-import TrashPage, {
-  loader as trashedLoginsLoader,
-  action as trashLoginAction,
-} from "./pages/Trash";
-import SharedLoginsPage, {
-  action as shareLoginAction,
-  deleteAction as sharedLoginDeleteAction,
-  loader as sharedLoginsLoader,
-} from "./pages/SharedLogins";
+import TrashPage from "./pages/Trash";
+import SharedLoginsPage from "./pages/SharedLogins";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { action as logoutAction } from "./pages/Logout";
 import { queryClient } from "./util/query-utils/query-client.ts";
-import {
-  combinedLoginsLoader,
-  combinedSharedLoginsLoader,
-  combinedTrashLoginsLoader,
-  rootLoader,
-} from "./util/combined-loaders.ts";
-import NotesPage, { action as notesAction } from "./pages/Notes.tsx";
-import SSHKeysPage, { action as sshAction } from "./pages/SSHKeys.tsx";
+import NotesPage from "./pages/Notes.tsx";
+import SSHKeysPage from "./pages/SSHKeys.tsx";
+import { checkAuthLoader } from "./util/auth.ts";
+import LoginsPage from "./pages/Logins.tsx";
 
 const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <RootLayout />,
-    id: "data",
-    loader: rootLoader,
-    children: [
-      { index: true, element: <Navigate to="/logins" /> },
-      {
-        path: "logins",
-        element: <LoginsPage />,
-        loader: loginsLoader,
-        action: LoginAction,
-      },
-      {
-        path: "logins/new",
-        element: <LoginsPage />,
-        loader: loginsLoader,
-      },
-      {
-        path: "logins/:loginId",
-        action: LoginAction,
-      },
-      {
-        path: "logins/:loginId/edit",
-        element: <LoginsPage />,
-        loader: combinedLoginsLoader,
-      },
-      {
-        path: "folders",
-        action: folderAction,
-      },
-      {
-        path: "folders/:folderId",
-        action: folderAction,
-      },
-      {
-        path: "shared-logins/",
-        element: <Navigate to="/shared-logins/by-me" />,
-        action: shareLoginAction,
-      },
-      {
-        path: "shared-logins/by-me",
-        element: <SharedLoginsPage />,
-        loader: sharedLoginsLoader,
-      },
-      {
-        path: "shared-logins/with-me",
-        element: <SharedLoginsPage />,
-        loader: sharedLoginsLoader,
-      },
-      {
-        path: "shared-logins/by-me/:loginId",
-        element: <SharedLoginsPage />,
-        loader: combinedSharedLoginsLoader,
-        action: sharedLoginDeleteAction,
-      },
-      {
-        path: "shared-logins/with-me/:loginId",
-        element: <SharedLoginsPage />,
-        loader: combinedSharedLoginsLoader,
-        action: sharedLoginDeleteAction,
-      },
-      { path: "trash", element: <TrashPage />, loader: trashedLoginsLoader },
-      {
-        path: "trash/:loginId",
-        element: <TrashPage />,
-        loader: combinedTrashLoginsLoader,
-        action: trashLoginAction,
-      },
-      {
-        path: "notes",
-        element: <NotesPage />,
-        action: notesAction
-      },
-      {
-        path: "notes/new",
-        element: <NotesPage />,
-      },
-      {
-        path: "notes/:noteId",
-        element: <NotesPage />,
-        action: notesAction,
-      },
-      {
-        path: "ssh-keys",
-        element: <SSHKeysPage />,
-        action: sshAction,
-      },
-      {
-        path: "ssh-keys/new",
-        element: <SSHKeysPage />,
-      },
-      {
-        path: "ssh-keys/:keyId",
-        element: <SSHKeysPage />,
-        action: sshAction,
-      },
-    ],
-  },
-  { path: "/login", element: <LoginPage /> },
-  { path: "/register", element: <RegisterPage /> },
-  { path: "/logout", action: logoutAction },
+    {
+        path: "/",
+        element: <RootLayout />,
+        id: "data",
+        loader: checkAuthLoader,
+        children: [
+            { index: true, element: <Navigate to="/logins" /> },
+            {
+                path: "logins",
+                element: <LoginsPage />,
+            },
+            {
+                path: "logins/new",
+                element: <LoginsPage />,
+            },
+            {
+                path: "logins/:loginId/edit",
+                element: <LoginsPage />,
+            },
+            {
+                path: "shared-logins/by-me",
+                element: <SharedLoginsPage />,
+            },
+            {
+                path: "shared-logins/with-me",
+                element: <SharedLoginsPage />,
+            },
+            {
+                path: "shared-logins/by-me/:loginId",
+                element: <SharedLoginsPage />,
+            },
+            {
+                path: "shared-logins/with-me/:loginId",
+                element: <SharedLoginsPage />,
+            },
+            {
+                path: "trash",
+                element: <TrashPage />,
+            },
+            {
+                path: "trash/:loginId",
+                element: <TrashPage />,
+            },
+            {
+                path: "notes",
+                element: <NotesPage />,
+            },
+            {
+                path: "notes/new",
+                element: <NotesPage />,
+            },
+            {
+                path: "notes/:noteId/edit",
+                element: <NotesPage />,
+            },
+            {
+                path: "ssh-keys",
+                element: <SSHKeysPage />,
+            },
+            {
+                path: "ssh-keys/new",
+                element: <SSHKeysPage />,
+            },
+            {
+                path: "ssh-keys/:keyId/edit",
+                element: <SSHKeysPage />,
+            },
+        ],
+    },
+    { path: "/login", element: <LoginPage /> },
+    { path: "/register", element: <RegisterPage /> },
+    { path: "/logout", action: logoutAction },
 ]);
 
 function App() {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-    </QueryClientProvider>
-  );
+    return (
+        <QueryClientProvider client={queryClient}>
+            <RouterProvider router={router} />
+        </QueryClientProvider>
+    );
 }
 
 export default App;

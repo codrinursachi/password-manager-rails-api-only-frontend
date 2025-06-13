@@ -7,16 +7,21 @@ import {
     TableBody,
     TableCell,
 } from "../ui/table";
-import React from "react";
+import React, { use } from "react";
 import {
     Dialog,
+    DialogClose,
     DialogContent,
+    DialogDescription,
     DialogFooter,
     DialogHeader,
     DialogTitle,
     DialogTrigger,
 } from "../ui/dialog";
 import { Button } from "../ui/button";
+import { TableContentSkeleton } from "../skeletons/table-content-skeleton";
+import { useMutation } from "@tanstack/react-query";
+import { mutateSSHKey } from "@/util/mutate-utils/mutate-ssh-key";
 
 type sshKey = {
     id: number;
@@ -28,6 +33,18 @@ type sshKey = {
 };
 
 const sshKeysTable: React.FC<{ sshKeys: sshKey[] }> = (props) => {
+    const sshKeyMutation = useMutation({
+        mutationFn: async ({
+            event,
+            keyId,
+        }: {
+            event: React.FormEvent<HTMLFormElement>;
+            keyId: number;
+        }) => {
+            event.preventDefault();
+            mutateSSHKey(null, keyId.toString(), "DELETE");
+        },
+    });
     return (
         <Table className="table-fixed">
             <TableHeader>
@@ -39,10 +56,11 @@ const sshKeysTable: React.FC<{ sshKeys: sshKey[] }> = (props) => {
                 </TableRow>
             </TableHeader>
             <TableBody>
-                {props.sshKeys.map((sshKey) => (
+                {!props.sshKeys && <TableContentSkeleton cellNumber={2} />}
+                {props.sshKeys?.map((sshKey) => (
                     <TableRow key={sshKey.id}>
                         <TableCell>
-                            <Link to={"/ssh-keys/" + sshKey.id}>
+                            <Link to={"/ssh-keys/" + sshKey.id + "/edit"}>
                                 <div className="w-full">{sshKey.name}</div>
                             </Link>
                         </TableCell>
@@ -63,23 +81,32 @@ const sshKeysTable: React.FC<{ sshKeys: sshKey[] }> = (props) => {
                                             pair?
                                         </DialogTitle>
                                     </DialogHeader>
+                                    <DialogDescription className="hidden">
+                                        Delete ssh key.
+                                    </DialogDescription>
                                     <DialogFooter>
-                                        <DialogTrigger asChild>
+                                        <DialogClose asChild>
                                             <Button variant="outline">
                                                 Cancel
                                             </Button>
-                                        </DialogTrigger>
-                                        <Form
-                                            method="delete"
-                                            action={"/ssh-keys/" + sshKey.id}
+                                        </DialogClose>
+                                        <form
+                                            onSubmit={(event) =>
+                                                sshKeyMutation.mutate({
+                                                    event,
+                                                    keyId: sshKey.id,
+                                                })
+                                            }
                                         >
-                                            <Button
-                                                type="submit"
-                                                variant="destructive"
-                                            >
-                                                Delete
-                                            </Button>
-                                        </Form>
+                                            <DialogClose asChild>
+                                                <Button
+                                                    type="submit"
+                                                    variant="destructive"
+                                                >
+                                                    Delete
+                                                </Button>
+                                            </DialogClose>
+                                        </form>
                                     </DialogFooter>
                                 </DialogContent>
                             </Dialog>

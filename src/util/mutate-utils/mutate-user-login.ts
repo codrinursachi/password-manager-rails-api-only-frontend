@@ -3,7 +3,7 @@ import { keyStore } from "@/util/crypt-utils/key-store";
 import { decryptAES } from "@/util/crypt-utils/cryptography";
 import { getPrivateKeyFromBase64 } from "@/util/crypt-utils/get-private-rsa-key-from-base64";
 
-export async function mutateLogin(formData: FormData) {
+export async function mutateUserLogin(formData: FormData) {
     const email = formData.get("email");
     const password = formData.get("password");
     const response = await fetch("/api/v1/login", {

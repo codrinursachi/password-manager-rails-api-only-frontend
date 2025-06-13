@@ -5,17 +5,17 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from "../ui/sidebar";
-import { Link, useLoaderData, useSearchParams } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import FoldersDropdown from "./folders-dropdown";
 import { useQuery } from "@tanstack/react-query";
 import { queryFolders } from "@/util/query-utils/query-folders";
 import SidebarUserFoldersGroupLabel from "./sidebar-user-folders-group-label";
+import { UserFoldersSkeleton } from "../skeletons/user-folders-skeleton";
 
 function SidebarUserFoldersGroup() {
     const { data } = useQuery({
         queryKey: ["folders"],
         queryFn: ({ signal }) => queryFolders(signal),
-        initialData: useLoaderData(),
     });
     const currentFolder = useSearchParams()[0].get("folder_id");
     return (
@@ -23,7 +23,8 @@ function SidebarUserFoldersGroup() {
             <SidebarUserFoldersGroupLabel />
             <SidebarGroupContent>
                 <SidebarMenu>
-                    {data.map((folder: { id: number; name: string }) => (
+                    {!data && <UserFoldersSkeleton />}
+                    {data?.map((folder: { id: number; name: string }) => (
                         <SidebarMenuItem key={folder.id}>
                             <SidebarMenuButton
                                 asChild

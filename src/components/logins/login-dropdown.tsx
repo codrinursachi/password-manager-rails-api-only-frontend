@@ -5,11 +5,12 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { Form, Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import {
     Dialog,
     DialogClose,
     DialogContent,
+    DialogDescription,
     DialogFooter,
     DialogHeader,
     DialogTitle,
@@ -19,6 +20,9 @@ import React, { useState } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { decryptAES } from "@/util/crypt-utils/cryptography";
+import { useMutation } from "@tanstack/react-query";
+import { mutateLogin } from "@/util/mutate-utils/mutate-login";
+import { mutateSharedLogin } from "@/util/mutate-utils/mutate-shared-login";
 
 type Login = {
     login_name: string;
@@ -30,6 +34,21 @@ type Login = {
 
 const LoginDropdown: React.FC<{ login: Login }> = (props) => {
     const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
+    const navigate = useNavigate();
+    const loginMutation = useMutation({
+        mutationFn: async (event: React.FormEvent<HTMLFormElement>) => {
+            event.preventDefault();
+            mutateLogin(null, props.login.login_id.toString(), "DELETE");
+        },
+    });
+    const sharedLoginMutation = useMutation({
+        mutationFn: async (event: React.FormEvent<HTMLFormElement>) => {
+            event.preventDefault();
+            const formData = new FormData(event.target as HTMLFormElement);
+            mutateSharedLogin(formData, props.login.login_id.toString());
+            navigate("/shared-logins/by-me");
+        },
+    });
     return (
         <DropdownMenu
             modal={false}
@@ -97,12 +116,10 @@ const LoginDropdown: React.FC<{ login: Login }> = (props) => {
                         <DialogHeader>
                             <DialogTitle>Share login with:</DialogTitle>
                         </DialogHeader>
-                        <Form method="post" action={"/shared-logins/"}>
-                            <Input
-                                type="hidden"
-                                name="shared_login_datum[login_id]"
-                                value={props.login.login_id}
-                            />
+                        <DialogDescription className="hidden">
+                            Enter email address to share login.
+                        </DialogDescription>
+                        <form onSubmit={sharedLoginMutation.mutate}>
                             <Input
                                 type="text"
                                 name="shared_login_datum[email]"
@@ -120,7 +137,7 @@ const LoginDropdown: React.FC<{ login: Login }> = (props) => {
                                     </Button>
                                 </DialogClose>
                             </DialogFooter>
-                        </Form>
+                        </form>
                     </DialogContent>
                 </Dialog>
                 <Dialog>
@@ -139,6 +156,9 @@ const LoginDropdown: React.FC<{ login: Login }> = (props) => {
                                 Are you sure you want to send to trash?
                             </DialogTitle>
                         </DialogHeader>
+                        <DialogDescription className="hidden">
+                            Send login to trash.
+                        </DialogDescription>
                         <DialogFooter>
                             <DialogClose asChild>
                                 <Button
@@ -151,10 +171,7 @@ const LoginDropdown: React.FC<{ login: Login }> = (props) => {
                                 </Button>
                             </DialogClose>
                             <DialogClose asChild>
-                                <Form
-                                    method="delete"
-                                    action={"/logins/" + props.login.login_id}
-                                >
+                                <form onSubmit={loginMutation.mutate}>
                                     <Button
                                         type="submit"
                                         onClick={() => {
@@ -163,7 +180,7 @@ const LoginDropdown: React.FC<{ login: Login }> = (props) => {
                                     >
                                         Yes
                                     </Button>
-                                </Form>
+                                </form>
                             </DialogClose>
                         </DialogFooter>
                     </DialogContent>

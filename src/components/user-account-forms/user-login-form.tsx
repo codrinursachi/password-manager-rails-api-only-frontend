@@ -15,7 +15,7 @@ import startAuthentication from "@/util/passkey-util/passkey-authentication";
 import { Alert, AlertTitle } from "../ui/alert";
 import { AlertCircleIcon } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
-import { mutateLogin } from "@/util/user-account-utils/mutate-login";
+import { mutateUserLogin } from "@/util/mutate-utils/mutate-user-login";
 
 export function LoginForm({
     className,
@@ -27,7 +27,9 @@ export function LoginForm({
     const loginMutation = useMutation({
         mutationFn: (event: React.FormEvent<HTMLFormElement>) => {
             event.preventDefault();
-            return mutateLogin(new FormData(event.target as HTMLFormElement));
+            return mutateUserLogin(
+                new FormData(event.target as HTMLFormElement)
+            );
         },
     });
     useEffect(() => {

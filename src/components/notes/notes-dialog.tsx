@@ -3,6 +3,7 @@ import {
     Dialog,
     DialogClose,
     DialogContent,
+    DialogDescription,
     DialogFooter,
     DialogHeader,
     DialogTitle,
@@ -10,6 +11,8 @@ import {
 import { Form, useLocation, useNavigate, useParams } from "react-router";
 import { useEffect, useState } from "react";
 import NotesFormInputs from "./notes-form-inputs";
+import { useMutation } from "@tanstack/react-query";
+import { mutateNote } from "@/util/mutate-utils/mutate-note";
 
 function NotesDialog() {
     const noteId = useParams().noteId;
@@ -19,6 +22,13 @@ function NotesDialog() {
         setDialogOpen(noteId !== undefined || isNew);
     }, [noteId, isNew]);
     const navigate = useNavigate();
+    const noteMutation = useMutation({
+        mutationFn: async (event: React.FormEvent<HTMLFormElement>) => {
+            event.preventDefault();
+            const formData = new FormData(event.target as HTMLFormElement);
+            mutateNote(formData, noteId, noteId ? "PATCH" : "POST");
+        },
+    });
     return (
         <Dialog
             open={dialogOpen}
@@ -31,13 +41,13 @@ function NotesDialog() {
         >
             <DialogContent className="sm:max-w-lg">
                 <DialogHeader>
-                    <DialogTitle>
-                        {noteId ? "Edit" : "Create"} ssh key
-                    </DialogTitle>
+                    <DialogTitle>{noteId ? "Edit" : "Create"} note</DialogTitle>
                 </DialogHeader>
-                <Form
-                    method={noteId ? "patch" : "post"}
-                    action={noteId ? `/notes/${noteId}` : "/notes/"}
+                <DialogDescription className="hidden">
+                    {noteId ? "Edit" : "Create"} note
+                </DialogDescription>
+                <form
+                    onSubmit={noteMutation.mutate}
                 >
                     <NotesFormInputs />
                     <DialogFooter className="sm:justify-start">
@@ -50,7 +60,7 @@ function NotesDialog() {
                             <Button type="submit">Save</Button>
                         </DialogClose>
                     </DialogFooter>
-                </Form>
+                </form>
             </DialogContent>
         </Dialog>
     );

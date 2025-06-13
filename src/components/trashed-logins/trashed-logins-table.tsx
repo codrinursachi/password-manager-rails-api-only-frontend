@@ -9,6 +9,7 @@ import {
 } from "../ui/table";
 import TrashedLoginDropdown from "./trashed-login-dropdown";
 import React from "react";
+import { TableContentSkeleton } from "../skeletons/table-content-skeleton";
 
 type TrashedLogin = {
     login_id: number;
@@ -33,7 +34,10 @@ const TrashedLoginsTable: React.FC<{ trashedLogins: TrashedLogin[] }> = (
                 </TableRow>
             </TableHeader>
             <TableBody>
-                {props.trashedLogins.map((login) => (
+                {!props.trashedLogins && (
+                    <TableContentSkeleton cellNumber={4} />
+                )}
+                {props.trashedLogins?.map((login) => (
                     <TableRow key={login.login_id}>
                         <TableCell>
                             <Link to={"/trash/" + login.login_id}>

@@ -9,6 +9,7 @@ import {
     TableCell,
 } from "../ui/table";
 import React from "react";
+import { TableContentSkeleton } from "../skeletons/table-content-skeleton";
 
 type Login = {
     login_id: number;
@@ -33,7 +34,8 @@ const LoginsTable: React.FC<{ logins: Login[] }> = (props) => {
                 </TableRow>
             </TableHeader>
             <TableBody>
-                {props.logins.map((login) => (
+                {!props.logins && <TableContentSkeleton cellNumber={4} />}
+                {props.logins?.map((login) => (
                     <TableRow key={login.login_id}>
                         <TableCell>
                             <Link to={"/logins/" + login.login_id + "/edit"}>

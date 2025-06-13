@@ -11,13 +11,18 @@ import React, { useEffect, useState } from "react";
 import { decryptAES } from "@/util/crypt-utils/cryptography";
 import {
     Dialog,
+    DialogClose,
     DialogContent,
+    DialogDescription,
     DialogFooter,
     DialogHeader,
     DialogTitle,
     DialogTrigger,
 } from "../ui/dialog";
 import { Button } from "../ui/button";
+import { TableContentSkeleton } from "../skeletons/table-content-skeleton";
+import { useMutation } from "@tanstack/react-query";
+import { mutateNote } from "@/util/mutate-utils/mutate-note";
 
 type note = {
     id: number;
@@ -41,8 +46,20 @@ const NotesTable: React.FC<{ notes: note[] }> = (props) => {
             );
         }
 
-        decryptNotesNames();
+        props.notes && decryptNotesNames();
     }, [props.notes]);
+    const noteMutation = useMutation({
+        mutationFn: async ({
+            event,
+            noteId,
+        }: {
+            event: React.FormEvent<HTMLFormElement>;
+            noteId: string;
+        }) => {
+            event.preventDefault();
+            mutateNote(null, noteId, "DELETE");
+        },
+    });
     return (
         <Table className="table-fixed">
             <TableHeader>
@@ -54,10 +71,11 @@ const NotesTable: React.FC<{ notes: note[] }> = (props) => {
                 </TableRow>
             </TableHeader>
             <TableBody>
-                {notes.map((note) => (
+                {!notes && <TableContentSkeleton cellNumber={2} />}
+                {notes?.map((note) => (
                     <TableRow key={note.id}>
                         <TableCell>
-                            <Link to={"/notes/" + note.id}>
+                            <Link to={"/notes/" + note.id + "/edit"}>
                                 <div className="w-full">{note.name}</div>
                             </Link>
                         </TableCell>
@@ -78,22 +96,31 @@ const NotesTable: React.FC<{ notes: note[] }> = (props) => {
                                             note?
                                         </DialogTitle>
                                     </DialogHeader>
+                                    <DialogDescription className="hidden">
+                                        Delete note
+                                    </DialogDescription>
                                     <DialogFooter>
-                                        <DialogTrigger asChild>
+                                        <DialogClose asChild>
                                             <Button variant="outline">
                                                 Cancel
                                             </Button>
-                                        </DialogTrigger>
+                                        </DialogClose>
                                         <Form
-                                            method="delete"
-                                            action={"/notes/" + note.id}
+                                            onSubmit={(event) =>
+                                                noteMutation.mutate({
+                                                    event,
+                                                    noteId: note.id.toString(),
+                                                })
+                                            }
                                         >
-                                            <Button
-                                                type="submit"
-                                                variant="destructive"
-                                            >
-                                                Delete
-                                            </Button>
+                                            <DialogClose asChild>
+                                                <Button
+                                                    type="submit"
+                                                    variant="destructive"
+                                                >
+                                                    Delete
+                                                </Button>
+                                            </DialogClose>
                                         </Form>
                                     </DialogFooter>
                                 </DialogContent>

@@ -7,9 +7,12 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
-import { Form, useLocation, useNavigate, useParams } from "react-router";
+import { useLocation, useNavigate, useParams } from "react-router";
 import LoginFormInputs from "./login-form-inputs";
 import { useEffect, useState } from "react";
+import { DialogDescription } from "@radix-ui/react-dialog";
+import { useMutation } from "@tanstack/react-query";
+import { mutateLogin } from "@/util/mutate-utils/mutate-login";
 
 const LoginDialog = () => {
     const loginId = useParams().loginId;
@@ -24,6 +27,27 @@ const LoginDialog = () => {
         setDialogOpen(loginId !== undefined || isNew);
     }, [loginId, isNew]);
     const navigate = useNavigate();
+    const loginMutation = useMutation({
+        mutationFn: async (event: React.FormEvent<HTMLFormElement>) => {
+            event.preventDefault();
+            if (!valid) {
+                return;
+            }
+            console.log("Submitting login form");
+            let formData: FormData;
+            try {
+                formData = new FormData(event.target as HTMLFormElement);
+                
+            }
+            catch (error) {
+                console.error("Error submitting login form:", error);
+                return;
+            }
+            console.log("Form data:", formData);
+            mutateLogin(formData, loginId, loginId ? "PATCH" : "POST");
+            setDialogOpen(false);
+        },
+    });
     return (
         <Dialog
             open={dialogOpen}
@@ -41,9 +65,11 @@ const LoginDialog = () => {
                         login
                     </DialogTitle>
                 </DialogHeader>
-                <Form
-                    method={loginId ? "patch" : "post"}
-                    action={loginId ? `/logins/${loginId}` : "/logins"}
+                <DialogDescription className="hidden">
+                    Enter login values
+                </DialogDescription>
+                <form
+                    onSubmit={loginMutation.mutate}
                     encType="multipart/form-data"
                 >
                     <LoginFormInputs
@@ -59,14 +85,9 @@ const LoginDialog = () => {
                                 Close
                             </Button>
                         </DialogClose>
-                        <Button
-                            type="submit"
-                            onClick={() => valid && setDialogOpen(false)}
-                        >
-                            Save
-                        </Button>
+                        <Button>Save</Button>
                     </DialogFooter>
-                </Form>
+                </form>
             </DialogContent>
         </Dialog>
     );
