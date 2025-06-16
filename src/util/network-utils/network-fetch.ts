@@ -17,7 +17,11 @@ export async function networkFetch(
     });
 
     if (!response.ok) {
-        console.log(response);
+        throw new Error(
+            `Error: ${await response
+                .json()
+                .then((data) => data.error || "Unknown error")}`
+        );
     }
 
     return method !== "DELETE" && response.json();

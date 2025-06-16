@@ -23,6 +23,8 @@ import { Button } from "../ui/button";
 import { TableContentSkeleton } from "../skeletons/table-content-skeleton";
 import { useMutation } from "@tanstack/react-query";
 import { mutateNote } from "@/util/mutate-utils/mutate-note";
+import { toast } from "sonner";
+import { queryClient } from "@/util/query-utils/query-client";
 
 type note = {
     id: number;
@@ -58,6 +60,19 @@ const NotesTable: React.FC<{ notes: note[] }> = (props) => {
         }) => {
             event.preventDefault();
             mutateNote(null, noteId, "DELETE");
+        },
+        onError: (error: Error) => {
+            console.error(error);
+            toast.error(error.message, {
+                description: "Error deleting note",
+                action: {
+                    label: "Try again",
+                    onClick: () => console.log("Undo"),
+                },
+            });
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: ["notes"] });
         },
     });
     return (

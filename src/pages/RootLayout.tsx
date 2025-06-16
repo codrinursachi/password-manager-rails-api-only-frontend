@@ -3,6 +3,7 @@ import { AppSidebar } from "@/components/sidebar/app-sidebar";
 import { Outlet, useSubmit } from "react-router";
 import { useEffect } from "react";
 import { getTokenDuration } from "@/util/auth";
+import { Toaster } from "@/components/ui/sonner";
 
 const RootLayout = () => {
     const submit = useSubmit();
@@ -19,6 +20,7 @@ const RootLayout = () => {
             <main className="p-4 ">
                 <Outlet />
             </main>
+            <Toaster closeButton />
         </SidebarProvider>
     );
 };

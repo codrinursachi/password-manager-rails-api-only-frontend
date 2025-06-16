@@ -13,6 +13,8 @@ import { useEffect, useState } from "react";
 import { DialogDescription } from "@radix-ui/react-dialog";
 import { useMutation } from "@tanstack/react-query";
 import { mutateLogin } from "@/util/mutate-utils/mutate-login";
+import { queryClient } from "@/util/query-utils/query-client";
+import { toast } from "sonner";
 
 const LoginDialog = () => {
     const loginId = useParams().loginId;
@@ -33,19 +35,23 @@ const LoginDialog = () => {
             if (!valid) {
                 return;
             }
-            console.log("Submitting login form");
-            let formData: FormData;
-            try {
-                formData = new FormData(event.target as HTMLFormElement);
-                
-            }
-            catch (error) {
-                console.error("Error submitting login form:", error);
-                return;
-            }
-            console.log("Form data:", formData);
-            mutateLogin(formData, loginId, loginId ? "PATCH" : "POST");
-            setDialogOpen(false);
+            const formData = new FormData(event.target as HTMLFormElement);
+            dialogOpen && navigate(-1);
+            await mutateLogin(formData, loginId, loginId ? "PATCH" : "POST");
+        },
+        onError: (error: Error) => {
+            console.error("Error saving login:", error);
+            toast.error(error.message, {
+                description: "Failed to save login.",
+                action: {
+                    label: "Try again",
+                    onClick: () =>
+                        loginMutation.mutate(loginMutation.variables!),
+                },
+            });
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: ["logins"] });
         },
     });
     return (

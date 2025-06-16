@@ -1,6 +1,5 @@
 import { encryptAES } from "../crypt-utils/cryptography";
 import { networkFetch } from "../network-utils/network-fetch";
-import { queryClient } from "../query-utils/query-client";
 
 export async function mutateSSHKey(
     formData: FormData | null,
@@ -16,9 +15,8 @@ export async function mutateSSHKey(
     }
     await networkFetch(
         "sshkeys/" + (keyId ? keyId : ""),
-        undefined,
+        null,
         method,
         formData
     );
-    queryClient.invalidateQueries({ queryKey: ["sshKeys"] });
 }

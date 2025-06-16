@@ -11,12 +11,29 @@ import { useQuery } from "@tanstack/react-query";
 import { queryFolders } from "@/util/query-utils/query-folders";
 import SidebarUserFoldersGroupLabel from "./sidebar-user-folders-group-label";
 import { UserFoldersSkeleton } from "../skeletons/user-folders-skeleton";
+import { useEffect } from "react";
+import { toast } from "sonner";
+import { queryClient } from "@/util/query-utils/query-client";
 
 function SidebarUserFoldersGroup() {
-    const { data } = useQuery({
+    const { data, error } = useQuery({
         queryKey: ["folders"],
         queryFn: ({ signal }) => queryFolders(signal),
     });
+    useEffect(() => {
+        if (error) {
+            toast.error(error.message, {
+                description: "Failed to load folders.",
+                action: {
+                    label: "Retry",
+                    onClick: () =>
+                        queryClient.invalidateQueries({
+                            queryKey: ["folders"],
+                        }),
+                },
+            });
+        }
+    }, [error]);
     const currentFolder = useSearchParams()[0].get("folder_id");
     return (
         <SidebarGroup>

@@ -5,7 +5,9 @@ import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router";
 import { queryLogins } from "@/util/query-utils/query-logins";
 import { useQuery } from "@tanstack/react-query";
-import { Alert } from "@/components/ui/alert";
+import { toast } from "sonner";
+import { useEffect } from "react";
+import { queryClient } from "@/util/query-utils/query-client";
 
 const LoginsPage = () => {
     const navigate = useNavigate();
@@ -24,9 +26,18 @@ const LoginsPage = () => {
         queryFn: ({ signal }) => queryLogins(queryParameter, signal),
     });
 
-    if (error) {
-        return <Alert variant="destructive">Error: {error.message}</Alert>;
-    }
+    useEffect(() => {
+        if (error) {
+            toast.error(error.message, {
+                description: "Failed to load logins.",
+                action: {
+                    label: "Retry",
+                    onClick: () =>
+                        queryClient.invalidateQueries({ queryKey: ["logins"] }),
+                },
+            });
+        }
+    }, [error]);
 
     return (
         <div className="flex flex-col gap-4">

@@ -21,6 +21,8 @@ import React, { useState } from "react";
 import { Input } from "../ui/input";
 import { useMutation } from "@tanstack/react-query";
 import { mutateFolder } from "@/util/mutate-utils/mutate-folder";
+import { queryClient } from "@/util/query-utils/query-client";
+import { toast } from "sonner";
 
 const FoldersDropdown: React.FC<{ folder: { id: number; name: string } }> = (
     props
@@ -38,7 +40,20 @@ const FoldersDropdown: React.FC<{ folder: { id: number; name: string } }> = (
         }) => {
             event.preventDefault();
             const formData = new FormData(event.target as HTMLFormElement);
-            mutateFolder(formData, folderId.toString(), method);
+            await mutateFolder(formData, folderId.toString(), method);
+        },
+        onError: (error: Error) => {
+            console.error(error);
+            toast.error(error.message, {
+                description: "Error performing folder action",
+                action: {
+                    label: "Try again",
+                    onClick: () => console.log("Undo"),
+                },
+            });
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: ["folders"] });
         },
     });
     return (

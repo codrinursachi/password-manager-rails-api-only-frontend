@@ -8,11 +8,13 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
-import { Form, useLocation, useNavigate, useParams } from "react-router";
+import { useLocation, useNavigate, useParams } from "react-router";
 import { useEffect, useState } from "react";
 import SSHKeyFormInputs from "./ssh-key-form-inputs";
 import { useMutation } from "@tanstack/react-query";
 import { mutateSSHKey } from "@/util/mutate-utils/mutate-ssh-key";
+import { queryClient } from "@/util/query-utils/query-client";
+import { toast } from "sonner";
 
 function SSHKeyDialog() {
     const keyId = useParams().keyId;
@@ -28,6 +30,19 @@ function SSHKeyDialog() {
             const formData = new FormData(event.target as HTMLFormElement);
             const method = keyId ? "PATCH" : "POST";
             mutateSSHKey(formData, keyId, method);
+        },
+        onError: (error: Error) => {
+            console.error(error);
+            toast.error(error.message, {
+                description: "Erros saving SSH key",
+                action: {
+                    label: "Try again",
+                    onClick: () => console.log("Undo"),
+                },
+            });
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: ["sshKeys"] });
         },
     });
     return (

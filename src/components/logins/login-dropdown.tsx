@@ -23,6 +23,8 @@ import { decryptAES } from "@/util/crypt-utils/cryptography";
 import { useMutation } from "@tanstack/react-query";
 import { mutateLogin } from "@/util/mutate-utils/mutate-login";
 import { mutateSharedLogin } from "@/util/mutate-utils/mutate-shared-login";
+import { queryClient } from "@/util/query-utils/query-client";
+import { toast } from "sonner";
 
 type Login = {
     login_name: string;
@@ -38,15 +40,41 @@ const LoginDropdown: React.FC<{ login: Login }> = (props) => {
     const loginMutation = useMutation({
         mutationFn: async (event: React.FormEvent<HTMLFormElement>) => {
             event.preventDefault();
-            mutateLogin(null, props.login.login_id.toString(), "DELETE");
+            await mutateLogin(null, props.login.login_id.toString(), "DELETE");
+        },
+        onError: (error: Error) => {
+            console.error(error);
+            toast.error(error.message, {
+                description: "Error sending login to trash",
+                action: {
+                    label: "Try again",
+                    onClick: () => console.log("Undo"),
+                },
+            });
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: ["logins"] });
         },
     });
     const sharedLoginMutation = useMutation({
         mutationFn: async (event: React.FormEvent<HTMLFormElement>) => {
             event.preventDefault();
             const formData = new FormData(event.target as HTMLFormElement);
-            mutateSharedLogin(formData, props.login.login_id.toString());
+            await mutateSharedLogin(formData, props.login.login_id.toString());
             navigate("/shared-logins/by-me");
+        },
+        onError: (error: Error) => {
+            console.error(error);
+            toast.error(error.message, {
+                description: "Error sharing login",
+                action: {
+                    label: "Try again",
+                    onClick: () => console.log("Undo"),
+                },
+            });
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: ["shared-logins"] });
         },
     });
     return (

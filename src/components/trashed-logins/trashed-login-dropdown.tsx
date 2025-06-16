@@ -19,6 +19,8 @@ import {
 } from "../ui/dialog";
 import { useMutation } from "@tanstack/react-query";
 import { mutateTrashedLogin } from "@/util/mutate-utils/mutate-trashed-login";
+import { queryClient } from "@/util/query-utils/query-client";
+import { toast } from "sonner";
 
 type TrashedLogin = {
     login_id: number;
@@ -38,6 +40,19 @@ const TrashedLoginDropdown: React.FC<{ login: TrashedLogin }> = (props) => {
         }) => {
             event.preventDefault();
             mutateTrashedLogin(loginId.toString(), method);
+        },
+        onError: (error: Error) => {
+            console.error(error);
+            toast.error(error.message, {
+                description: "Error performing trashed login action",
+                action: {
+                    label: "Try again",
+                    onClick: () => console.log("Undo"),
+                },
+            });
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: ["trashedLogins"] });
         },
     });
 

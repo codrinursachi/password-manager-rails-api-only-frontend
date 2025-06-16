@@ -14,9 +14,9 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: process.env.UN_ENV_CU_API_URL || "http://localhost:3000/api/v1",
+        target: process.env.UN_ENV_CU_API_URL || "http://localhost:3000/api",
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/v1/, ""),
+        rewrite: (path) => path.replace(/^\/api/, ""),
       },
     },
   },

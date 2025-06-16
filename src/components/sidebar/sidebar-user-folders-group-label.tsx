@@ -13,13 +13,28 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { mutateFolder } from "@/util/mutate-utils/mutate-folder";
 import { useMutation } from "@tanstack/react-query";
+import { queryClient } from "@/util/query-utils/query-client";
+import { toast } from "sonner";
 
 function SidebarUserFoldersGroupLabel() {
     const folderMutation = useMutation({
         mutationFn: async (event: React.FormEvent<HTMLFormElement>) => {
             event.preventDefault();
             const formData = new FormData(event.target as HTMLFormElement);
-            mutateFolder(formData, null, "POST");
+            await mutateFolder(formData, null, "POST");
+        },
+        onError: (error: Error) => {
+            console.error(error);
+            toast.error(error.message, {
+                description: "Error creating folder",
+                action: {
+                    label: "Try again",
+                    onClick: () => console.log("Undo"),
+                },
+            });
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: ["folders"] });
         },
     });
     return (

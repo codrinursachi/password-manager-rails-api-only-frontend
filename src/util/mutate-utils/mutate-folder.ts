@@ -1,5 +1,4 @@
 import { networkFetch } from "@/util/network-utils/network-fetch";
-import { queryClient } from "@/util/query-utils/query-client";
 
 export async function mutateFolder(
     formData: FormData | null,
@@ -12,5 +11,4 @@ export async function mutateFolder(
         method,
         formData
     );
-    queryClient.invalidateQueries({ queryKey: ["folders"] });
 }
