@@ -143,7 +143,9 @@ function LoginsTable() {
                                 </Link>
                             </TableCell>
                             <TableCell>
-                                <LoginDropdown login={login} />
+                                {!pendingEdit && !pendingTrash && (
+                                    <LoginDropdown login={login} />
+                                )}
                             </TableCell>
                         </TableRow>
                     );

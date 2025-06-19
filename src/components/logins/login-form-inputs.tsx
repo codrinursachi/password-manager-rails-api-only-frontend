@@ -13,9 +13,10 @@ import { Textarea } from "../ui/textarea";
 import { useParams } from "react-router";
 import { queryLogin } from "@/util/query-utils/query-login";
 import { decryptAES } from "@/util/crypt-utils/cryptography";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import PasswordGeneratorDialog from "./password-generator-dialog";
 import { queryFolders } from "@/util/query-utils/query-folders";
+import { Skeleton } from "../ui/skeleton";
 
 type Folder = {
     id: number;
@@ -27,17 +28,16 @@ const LoginFormInputs: React.FC<{
     setValid: (valid: boolean) => void;
 }> = (props) => {
     const id = useParams().loginId;
-    const nameRef = React.useRef<HTMLInputElement>(null);
-    const usernameRef = React.useRef<HTMLInputElement>(null);
-    const urlRef = React.useRef<HTMLInputElement>(null);
-    const [password, setPassword] = React.useState("");
+    const nameRef = useRef<HTMLInputElement>(null);
+    const usernameRef = useRef<HTMLInputElement>(null);
+    const urlRef = useRef<HTMLInputElement>(null);
+    const [password, setPassword] = useState("");
     function changePassword(password: string) {
         setPassword(password);
     }
-    const { data } = useQuery({
+    const { data, isFetching } = useQuery({
         queryKey: ["individualLogin", id],
         queryFn: ({ signal }) => {
-            props.setValid(true);
             return queryLogin(id!, signal);
         },
         enabled: !!id,
@@ -55,7 +55,7 @@ const LoginFormInputs: React.FC<{
         }
     }
     const individualLogin = data?.individualLogin;
-    const { data: folders } = useQuery({
+    const { data: folders, isFetching: isFetchingFolders } = useQuery({
         queryKey: ["folders"],
         queryFn: ({ signal }) => queryFolders(signal),
     });
@@ -67,11 +67,12 @@ const LoginFormInputs: React.FC<{
                 individualLogin?.iv
             );
             setPassword(password);
+            props.setValid(true);
         };
-        if (id && individualLogin) {
+        if (individualLogin) {
             decryptPass();
         }
-    }, []);
+    }, [individualLogin]);
 
     return (
         <div className="grid gap-4 py-4" onChange={handleChange}>
@@ -80,46 +81,60 @@ const LoginFormInputs: React.FC<{
                 <Label htmlFor="name" className="text-right">
                     Name
                 </Label>
-                <Input
-                    id="name"
-                    className="col-span-3"
-                    name="login[name]"
-                    defaultValue={individualLogin?.name}
-                    readOnly={!props.isEditable}
-                    required
-                    ref={nameRef}
-                />
+                {isFetching ? (
+                    <Skeleton className="col-span-3 h-8" />
+                ) : (
+                    <Input
+                        id="name"
+                        className="col-span-3"
+                        name="login[name]"
+                        defaultValue={individualLogin?.name}
+                        readOnly={!props.isEditable}
+                        required
+                        ref={nameRef}
+                    />
+                )}
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="username" className="text-right">
                     Username
                 </Label>
-                <Input
-                    id="username"
-                    className="col-span-3"
-                    name="login[login_name]"
-                    defaultValue={individualLogin?.login_name}
-                    readOnly={!props.isEditable}
-                    required
-                    ref={usernameRef}
-                />
+                {isFetching ? (
+                    <Skeleton className="col-span-3 h-8" />
+                ) : (
+                    <Input
+                        id="username"
+                        className="col-span-3"
+                        name="login[login_name]"
+                        defaultValue={individualLogin?.login_name}
+                        readOnly={!props.isEditable}
+                        required
+                        ref={usernameRef}
+                        autoComplete="off"
+                    />
+                )}
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="password" className="text-right">
                     Password
                 </Label>
-                <Input
-                    id="password"
-                    type="password"
-                    className="col-span-3"
-                    name="login[login_password]"
-                    readOnly={!props.isEditable}
-                    required
-                    value={password}
-                    onChange={(e) => {
-                        setPassword(e.target.value);
-                    }}
-                />
+                {isFetching ? (
+                    <Skeleton className="col-span-3 h-8" />
+                ) : (
+                    <Input
+                        id="password"
+                        type="password"
+                        className="col-span-3"
+                        name="login[login_password]"
+                        readOnly={!props.isEditable}
+                        required
+                        value={password}
+                        onChange={(e) => {
+                            setPassword(e.target.value);
+                        }}
+                        autoComplete="off"
+                    />
+                )}
             </div>
             <PasswordGeneratorDialog setLoginPassword={changePassword} />
             <div className="grid grid-cols-4 items-center gap-4">
@@ -131,39 +146,51 @@ const LoginFormInputs: React.FC<{
                     name="login[urls_attributes][0][id]"
                     value={individualLogin?.urls[0]?.id}
                 />
-                <Input
-                    id="Url"
-                    className="col-span-3"
-                    name="login[urls_attributes][0][uri]"
-                    defaultValue={individualLogin?.urls[0]?.uri}
-                    readOnly={!props.isEditable}
-                    required
-                    ref={urlRef}
-                />
+                {isFetching ? (
+                    <Skeleton className="col-span-3 h-8" />
+                ) : (
+                    <Input
+                        id="Url"
+                        className="col-span-3"
+                        name="login[urls_attributes][0][uri]"
+                        defaultValue={individualLogin?.urls[0]?.uri}
+                        readOnly={!props.isEditable}
+                        required
+                        ref={urlRef}
+                    />
+                )}
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="notes" className="text-right">
                     Notes
                 </Label>
-                <Textarea
-                    id="notes"
-                    className="col-span-3"
-                    name="login[notes]"
-                    defaultValue={individualLogin?.notes}
-                    readOnly={!props.isEditable}
-                />
+                {isFetching ? (
+                    <Skeleton className="col-span-3 h-24" />
+                ) : (
+                    <Textarea
+                        id="notes"
+                        className="col-span-3"
+                        name="login[notes]"
+                        defaultValue={individualLogin?.notes}
+                        readOnly={!props.isEditable}
+                    />
+                )}
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="custom-field-name" className="text-left">
                     Custom field name
                 </Label>
-                <Input
-                    id="custom-field-name"
-                    className="col-span-3"
-                    name="login[custom_fields_attributes][0][name]"
-                    defaultValue={individualLogin?.custom_fields[0]?.name}
-                    readOnly={!props.isEditable}
-                />
+                {isFetching ? (
+                    <Skeleton className="col-span-3 h-8" />
+                ) : (
+                    <Input
+                        id="custom-field-name"
+                        className="col-span-3"
+                        name="login[custom_fields_attributes][0][name]"
+                        defaultValue={individualLogin?.custom_fields[0]?.name}
+                        readOnly={!props.isEditable}
+                    />
+                )}
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="custom-field-value" className="text-left">
@@ -174,66 +201,82 @@ const LoginFormInputs: React.FC<{
                     name="login[custom_fields_attributes][0][id]"
                     value={individualLogin?.custom_fields[0]?.id}
                 />
-                <Input
-                    id="custom-field-value"
-                    className="col-span-3"
-                    name="login[custom_fields_attributes][0][value]"
-                    defaultValue={individualLogin?.custom_fields[0]?.value}
-                    readOnly={!props.isEditable}
-                />
+                {isFetching ? (
+                    <Skeleton className="col-span-3 h-8" />
+                ) : (
+                    <Input
+                        id="custom-field-value"
+                        className="col-span-3"
+                        name="login[custom_fields_attributes][0][value]"
+                        defaultValue={individualLogin?.custom_fields[0]?.value}
+                        readOnly={!props.isEditable}
+                    />
+                )}
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="fav-check" className="text-right">
                     Favorite
                 </Label>
-                <Checkbox
-                    id="fav-check"
-                    className="col-span-3"
-                    name="login[is_favorite]"
-                    defaultChecked={individualLogin?.is_favorite}
-                    disabled={!props.isEditable}
-                />
+                {isFetching ? (
+                    <Skeleton className="col-span-3 h-8" />
+                ) : (
+                    <Checkbox
+                        id="fav-check"
+                        className="col-span-3"
+                        name="login[is_favorite]"
+                        defaultChecked={individualLogin?.is_favorite}
+                        disabled={!props.isEditable}
+                    />
+                )}
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
                 <Label className="text-right">Folder</Label>
-                <Select
-                    name="login[folder_id]"
-                    defaultValue={
-                        selectedFolder
-                            ? selectedFolder.toString()
-                            : folders
-                                  .find(
-                                      (folder: Folder) =>
-                                          folder.name === "No folder"
-                                  )
-                                  ?.id.toString()
-                    }
-                    disabled={!props.isEditable}
-                >
-                    <SelectTrigger className="w-[295px]">
-                        <SelectValue placeholder="Select a folder" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {folders.map((folder: Folder) => (
-                            <SelectItem
-                                value={folder.id.toString()}
-                                key={folder.id}
-                            >
-                                {folder.name}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
+                {isFetchingFolders ? (
+                    <Skeleton className="col-span-3 h-8" />
+                ) : (
+                    <Select
+                        name="login[folder_id]"
+                        defaultValue={
+                            selectedFolder
+                                ? selectedFolder.toString()
+                                : folders
+                                      .find(
+                                          (folder: Folder) =>
+                                              folder.name === "No folder"
+                                      )
+                                      ?.id.toString()
+                        }
+                        disabled={!props.isEditable}
+                    >
+                        <SelectTrigger className="w-[295px]">
+                            <SelectValue placeholder="Select a folder" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {folders.map((folder: Folder) => (
+                                <SelectItem
+                                    value={folder.id.toString()}
+                                    key={folder.id}
+                                >
+                                    {folder.name}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                )}
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="file">File</Label>
-                <Input
-                    id="file"
-                    type="file"
-                    className="w-[295px]"
-                    name="login[file]"
-                    disabled={!props.isEditable}
-                />
+                {isFetching ? (
+                    <Skeleton className="col-span-3 h-8" />
+                ) : (
+                    <Input
+                        id="file"
+                        type="file"
+                        className="w-[295px]"
+                        name="login[file]"
+                        disabled={!props.isEditable}
+                    />
+                )}
             </div>
         </div>
     );

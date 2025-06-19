@@ -26,18 +26,13 @@ const LoginDialog = () => {
         setValid(valid);
     };
     useEffect(() => {
-        setDialogOpen(loginId !== undefined || isNew);
+        setDialogOpen(!!loginId || isNew);
     }, [loginId, isNew]);
     const navigate = useNavigate();
     const loginMutation = useMutation({
         mutationKey: ["login", loginId ? "edit" : "add"],
         mutationFn: async (event: React.FormEvent<HTMLFormElement>) => {
-            event.preventDefault();
-            if (!valid) {
-                return;
-            }
             const formData = new FormData(event.target as HTMLFormElement);
-            dialogOpen && navigate(-1);
             await mutateLogin(formData, loginId, loginId ? "PATCH" : "POST");
         },
         onError: (error: Error) => {
@@ -75,7 +70,13 @@ const LoginDialog = () => {
                     Enter login values
                 </DialogDescription>
                 <form
-                    onSubmit={loginMutation.mutate}
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        if (valid) {
+                            navigate(-1);
+                            loginMutation.mutate(e);
+                        }
+                    }}
                     encType="multipart/form-data"
                 >
                     <LoginFormInputs
