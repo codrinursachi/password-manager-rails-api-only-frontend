@@ -38,21 +38,30 @@ const LoginDropdown: React.FC<{ login: Login }> = (props) => {
     const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
     const navigate = useNavigate();
     const loginMutation = useMutation({
-        mutationFn: async (event: React.FormEvent<HTMLFormElement>) => {
-            event.preventDefault();
-            await mutateLogin(null, props.login.login_id.toString(), "DELETE");
+        mutationFn: async (login_id: string) => {
+            await mutateLogin(null, login_id, "DELETE");
         },
+        mutationKey: ["login", "trash"],
         onError: (error: Error) => {
             console.error(error);
             toast.error(error.message, {
                 description: "Error sending login to trash",
                 action: {
                     label: "Try again",
-                    onClick: () => console.log("Undo"),
+                    onClick: () =>
+                        loginMutation.mutate(loginMutation.variables!),
                 },
             });
         },
         onSettled: () => {
+            queryClient.setQueryData(
+                ["logins", ""],
+                (oldData: { logins: { login_id: number }[] }) => ({
+                    logins: oldData.logins.filter(
+                        (login) => login.login_id !== props.login.login_id
+                    ),
+                })
+            );
             queryClient.invalidateQueries({ queryKey: ["logins"] });
         },
     });
@@ -69,7 +78,10 @@ const LoginDropdown: React.FC<{ login: Login }> = (props) => {
                 description: "Error sharing login",
                 action: {
                     label: "Try again",
-                    onClick: () => console.log("Undo"),
+                    onClick: () =>
+                        sharedLoginMutation.mutate(
+                            sharedLoginMutation.variables!
+                        ),
                 },
             });
         },
@@ -199,16 +211,17 @@ const LoginDropdown: React.FC<{ login: Login }> = (props) => {
                                 </Button>
                             </DialogClose>
                             <DialogClose asChild>
-                                <form onSubmit={loginMutation.mutate}>
-                                    <Button
-                                        type="submit"
-                                        onClick={() => {
-                                            setDropdownOpen(false);
-                                        }}
-                                    >
-                                        Yes
-                                    </Button>
-                                </form>
+                                <Button
+                                    type="button"
+                                    onClick={() => {
+                                        loginMutation.mutate(
+                                            props.login.login_id.toString()
+                                        );
+                                        setDropdownOpen(false);
+                                    }}
+                                >
+                                    Yes
+                                </Button>
                             </DialogClose>
                         </DialogFooter>
                     </DialogContent>

@@ -3,6 +3,7 @@ import {
     Dialog,
     DialogClose,
     DialogContent,
+    DialogDescription,
     DialogFooter,
     DialogHeader,
     DialogTitle,
@@ -10,7 +11,6 @@ import {
 import { useLocation, useNavigate, useParams } from "react-router";
 import LoginFormInputs from "./login-form-inputs";
 import { useEffect, useState } from "react";
-import { DialogDescription } from "@radix-ui/react-dialog";
 import { useMutation } from "@tanstack/react-query";
 import { mutateLogin } from "@/util/mutate-utils/mutate-login";
 import { queryClient } from "@/util/query-utils/query-client";
@@ -30,6 +30,7 @@ const LoginDialog = () => {
     }, [loginId, isNew]);
     const navigate = useNavigate();
     const loginMutation = useMutation({
+        mutationKey: ["login", loginId ? "edit" : "add"],
         mutationFn: async (event: React.FormEvent<HTMLFormElement>) => {
             event.preventDefault();
             if (!valid) {
@@ -40,7 +41,6 @@ const LoginDialog = () => {
             await mutateLogin(formData, loginId, loginId ? "PATCH" : "POST");
         },
         onError: (error: Error) => {
-            console.error("Error saving login:", error);
             toast.error(error.message, {
                 description: "Failed to save login.",
                 action: {

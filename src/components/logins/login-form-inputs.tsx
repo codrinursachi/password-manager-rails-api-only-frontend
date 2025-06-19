@@ -36,7 +36,10 @@ const LoginFormInputs: React.FC<{
     }
     const { data } = useQuery({
         queryKey: ["individualLogin", id],
-        queryFn: ({ signal }) => queryLogin(id!, signal),
+        queryFn: ({ signal }) => {
+            props.setValid(true);
+            return queryLogin(id!, signal);
+        },
         enabled: !!id,
     });
     function handleChange() {
@@ -69,9 +72,11 @@ const LoginFormInputs: React.FC<{
             decryptPass();
         }
     }, []);
+
     return (
         <div className="grid gap-4 py-4" onChange={handleChange}>
             <div className="grid grid-cols-4 items-center gap-4">
+                <Input type="hidden" name="login[login_id]" value={id} />
                 <Label htmlFor="name" className="text-right">
                     Name
                 </Label>

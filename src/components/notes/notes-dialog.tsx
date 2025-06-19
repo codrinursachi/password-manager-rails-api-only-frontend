@@ -28,15 +28,16 @@ function NotesDialog() {
         mutationFn: async (event: React.FormEvent<HTMLFormElement>) => {
             event.preventDefault();
             const formData = new FormData(event.target as HTMLFormElement);
-            mutateNote(formData, noteId, noteId ? "PATCH" : "POST");
+            await mutateNote(formData, noteId, noteId ? "PATCH" : "POST");
         },
+        mutationKey: ["note", noteId ? "edit" : "add"],
         onError: (error: Error) => {
             console.error(error);
             toast.error(error.message, {
                 description: "Error saving note",
                 action: {
                     label: "Try again",
-                    onClick: () => console.log("Undo"),
+                    onClick: () => noteMutation.mutate(noteMutation.variables!),
                 },
             });
         },
@@ -61,9 +62,7 @@ function NotesDialog() {
                 <DialogDescription className="hidden">
                     {noteId ? "Edit" : "Create"} note
                 </DialogDescription>
-                <form
-                    onSubmit={noteMutation.mutate}
-                >
+                <form onSubmit={noteMutation.mutate}>
                     <NotesFormInputs />
                     <DialogFooter className="sm:justify-start">
                         <DialogClose asChild>

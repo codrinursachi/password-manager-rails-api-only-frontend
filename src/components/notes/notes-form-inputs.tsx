@@ -32,6 +32,11 @@ function NotesFormInputs() {
     return (
         <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
+                <Input
+                    type="hidden"
+                    name="note[note_id]"
+                    value={id}
+                />
                 <Label htmlFor="name" className="text-right">
                     Name
                 </Label>

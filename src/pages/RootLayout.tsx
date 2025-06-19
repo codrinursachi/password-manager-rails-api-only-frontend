@@ -13,7 +13,6 @@ const RootLayout = () => {
             submit(null, { action: "/logout", method: "post" });
         }, expiration);
     }, []);
-
     return (
         <SidebarProvider>
             <AppSidebar />
