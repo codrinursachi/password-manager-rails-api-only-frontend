@@ -26,9 +26,13 @@ export function RegisterForm({
     const name = useRef<HTMLInputElement>(null);
     const navigate = useNavigate();
     const registrationMutation = useMutation({
-        mutationFn: (event: React.FormEvent<HTMLFormElement>) => {
+        mutationFn: async (event: React.FormEvent<HTMLFormElement> | null) => {
+            if (!event) {
+                await startRegistration(email.current!.value, name.current!.value);
+                return;
+            }
             event.preventDefault();
-            return mutateUserRegistration(
+            await mutateUserRegistration(
                 new FormData(event.target as HTMLFormElement)
             );
         },
@@ -88,12 +92,7 @@ export function RegisterForm({
                                 </div>
                                 <Button
                                     type="button"
-                                    onClick={async () => {
-                                        (await startRegistration(
-                                            email.current!.value,
-                                            name.current!.value
-                                        )) && navigate("/");
-                                    }}
+                                    onClick={()=>registrationMutation.mutate(null)}
                                     className="w-full"
                                 >
                                     Register with passkey

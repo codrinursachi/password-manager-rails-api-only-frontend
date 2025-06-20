@@ -25,9 +25,14 @@ export function LoginForm({
     const [loginWithPassword, setLoginWithPassword] = useState(false);
     const navigate = useNavigate();
     const loginMutation = useMutation({
-        mutationFn: (event: React.FormEvent<HTMLFormElement>) => {
+        mutationFn: async (event: React.FormEvent<HTMLFormElement> | null) => {
+            if (!event) {
+                await startAuthentication(email.current?.value!);
+                return;
+            }
+
             event.preventDefault();
-            return mutateUserLogin(
+            await mutateUserLogin(
                 new FormData(event.target as HTMLFormElement)
             );
         },
@@ -77,11 +82,7 @@ export function LoginForm({
                                     "w-full" +
                                     (loginWithPassword ? " hidden" : "")
                                 }
-                                onClick={async () => {
-                                    (await startAuthentication(
-                                        email.current?.value!
-                                    )) && navigate("/");
-                                }}
+                                onClick={() => loginMutation.mutate(null)}
                             >
                                 Login with passkey
                             </Button>

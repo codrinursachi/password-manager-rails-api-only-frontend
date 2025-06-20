@@ -5,7 +5,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { Form, Link, useLocation } from "react-router";
+import { Link, useLocation } from "react-router";
 import React, { useState } from "react";
 import { queryLogin } from "@/util/query-utils/query-login";
 import {
@@ -13,6 +13,9 @@ import {
     decryptRSAPassword,
 } from "@/util/crypt-utils/cryptography";
 import { queryClient } from "@/util/query-utils/query-client";
+import { useMutation } from "@tanstack/react-query";
+import { mutateSharedLogin } from "@/util/mutate-utils/mutate-shared-login";
+import { toast } from "sonner";
 
 const getPasswordSharedByMe = async (id: string) => {
     const { individualLogin } = await queryClient.fetchQuery({
@@ -39,6 +42,29 @@ const LoginDropdown: React.FC<{ login: Login }> = (props) => {
     const currentUrl = useLocation().pathname;
     const byMe = currentUrl.includes("by-me");
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const sharedLoginMutation = useMutation({
+        mutationFn: async (loginId:string) => {
+            await mutateSharedLogin(null, loginId);
+        },
+        mutationKey: ["sharedLogins", "delete"],
+        onError: (error: Error) => {
+            toast.error(error.message, {
+                description: "Error deleting shared login",
+                action: {
+                    label: "Try again",
+                    onClick: () =>
+                        sharedLoginMutation.mutate(
+                            sharedLoginMutation.variables!
+                        ),
+                },
+            });
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries({
+                queryKey: ["sharedLogins", byMe ? "by_me=true" : ""],
+            });
+        },
+    });
     return (
         <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
             <DropdownMenuTrigger asChild>
@@ -88,20 +114,18 @@ const LoginDropdown: React.FC<{ login: Login }> = (props) => {
                 ) : (
                     ""
                 )}
-                <Form
-                    method="delete"
-                    action={
-                        byMe
-                            ? `/shared-logins/by-me/${props.login.id}`
-                            : `/shared-logins/with-me/${props.login.id}`
-                    }
+                <form
+                    onSubmit={(event) => {
+                        event.preventDefault();
+                        sharedLoginMutation.mutate(props.login.id.toString());
+                    }}
                 >
                     <button type="submit">
                         <DropdownMenuItem>
                             <span>Delete shared login</span>
                         </DropdownMenuItem>
                     </button>
-                </Form>
+                </form>
             </DropdownMenuContent>
         </DropdownMenu>
     );

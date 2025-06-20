@@ -6,10 +6,11 @@ import { useParams } from "react-router";
 import { decryptAES } from "@/util/crypt-utils/cryptography";
 import { useEffect, useState } from "react";
 import { queryNote } from "@/util/query-utils/query-note";
+import { Skeleton } from "../ui/skeleton";
 
 function NotesFormInputs() {
     const id = useParams().noteId;
-    const { data } = useQuery({
+    const { data, isFetching } = useQuery({
         queryKey: ["individualNote", id],
         queryFn: ({ signal }) => queryNote(id!, signal),
         enabled: !!id,
@@ -32,20 +33,20 @@ function NotesFormInputs() {
     return (
         <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
-                <Input
-                    type="hidden"
-                    name="note[note_id]"
-                    value={id}
-                />
+                <Input type="hidden" name="note[note_id]" value={id} />
                 <Label htmlFor="name" className="text-right">
                     Name
                 </Label>
-                <Input
-                    id="name"
-                    className="col-span-3"
-                    name="note[name]"
-                    defaultValue={noteName}
-                />
+                {isFetching ? (
+                    <Skeleton className="col-span-3 h-8" />
+                ) : (
+                    <Input
+                        id="name"
+                        className="col-span-3"
+                        name="note[name]"
+                        defaultValue={noteName}
+                    />
+                )}
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
                 <Label
@@ -54,12 +55,16 @@ function NotesFormInputs() {
                 >
                     Text
                 </Label>
-                <Textarea
-                    id="text"
-                    className="col-span-3 h-30"
-                    name="note[text]"
-                    defaultValue={noteText}
-                />
+                {isFetching ? (
+                    <Skeleton className="col-span-3 h-30" />
+                ) : (
+                    <Textarea
+                        id="text"
+                        className="col-span-3 h-30"
+                        name="note[text]"
+                        defaultValue={noteText}
+                    />
+                )}
             </div>
         </div>
     );

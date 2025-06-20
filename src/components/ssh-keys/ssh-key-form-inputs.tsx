@@ -8,13 +8,14 @@ import { useEffect, useState } from "react";
 import { generateKeyPair } from "web-ssh-keygen";
 import { querySSHKey } from "@/util/query-utils/query-ssh-key";
 import { Button } from "../ui/button";
+import { Skeleton } from "../ui/skeleton";
 
 function SSHKeyFormInputs() {
     const id = useParams().keyId;
     const [privateKey, setPrivateKey] = useState("");
     const [publicKey, setPublicKey] = useState("");
     const [privateKeyMasked, setPrivateKeyMasked] = useState(true);
-    const { data } = useQuery({
+    const { data, isFetching } = useQuery({
         queryKey: ["individualSSHKey", id],
         queryFn: ({ signal }) => querySSHKey(id!, signal),
         enabled: !!id,
@@ -52,12 +53,16 @@ function SSHKeyFormInputs() {
                 <Label htmlFor="name" className="text-right">
                     Name
                 </Label>
-                <Input
-                    id="name"
-                    className="col-span-3"
-                    name="sshkey[name]"
-                    defaultValue={individualSSHKey?.name}
-                />
+                {isFetching ? (
+                    <Skeleton className="col-span-3 h-8" />
+                ) : (
+                    <Input
+                        id="name"
+                        className="col-span-3"
+                        name="sshkey[name]"
+                        defaultValue={individualSSHKey?.name}
+                    />
+                )}
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
                 <Label
@@ -90,22 +95,36 @@ function SSHKeyFormInputs() {
                         </Button>
                     </div>
                 </Label>
-                <Textarea
-                    id="private-key"
-                    className="col-span-3 h-30"
-                    name="sshkey[private_key]"
-                    readOnly={true}
-                    value={"•".repeat(privateKey.length)}
-                    hidden={!privateKeyMasked}
-                />
-                <Textarea
-                    id="private-key"
-                    className="col-span-3 h-30 "
-                    name="sshkey[private_key]"
-                    readOnly={true}
-                    value={privateKey}
-                    hidden={privateKeyMasked}
-                />
+                {isFetching ? (
+                    <Skeleton
+                        className="col-span-3 h-30"
+                        hidden={!privateKeyMasked}
+                    />
+                ) : (
+                    <Textarea
+                        id="private-key"
+                        className="col-span-3 h-30"
+                        name="sshkey[private_key]"
+                        readOnly={true}
+                        value={"•".repeat(privateKey.length)}
+                        hidden={!privateKeyMasked}
+                    />
+                )}
+                {isFetching ? (
+                    <Skeleton
+                        className="col-span-3 h-30"
+                        hidden={privateKeyMasked}
+                    />
+                ) : (
+                    <Textarea
+                        id="private-key"
+                        className="col-span-3 h-30 "
+                        name="sshkey[private_key]"
+                        readOnly={true}
+                        value={privateKey}
+                        hidden={privateKeyMasked}
+                    />
+                )}
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
                 <Label
@@ -122,24 +141,32 @@ function SSHKeyFormInputs() {
                         <i className="fas fa-clipboard" />
                     </Button>
                 </Label>
-                <Textarea
-                    id="public-key"
-                    className="col-span-3 h-30"
-                    name="sshkey[public_key]"
-                    readOnly={true}
-                    value={publicKey}
-                />
+                {isFetching ? (
+                    <Skeleton className="col-span-3 h-30" />
+                ) : (
+                    <Textarea
+                        id="public-key"
+                        className="col-span-3 h-30"
+                        name="sshkey[public_key]"
+                        readOnly={true}
+                        value={publicKey}
+                    />
+                )}
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="notes" className="text-right mb-auto">
                     Notes
                 </Label>
-                <Textarea
-                    id="notes"
-                    className="col-span-3"
-                    name="sshkey[notes]"
-                    defaultValue={individualSSHKey?.notes}
-                />
+                {isFetching ? (
+                    <Skeleton className="col-span-3 h-15" />
+                ) : (
+                    <Textarea
+                        id="notes"
+                        className="col-span-3"
+                        name="sshkey[notes]"
+                        defaultValue={individualSSHKey?.notes}
+                    />
+                )}
             </div>
         </div>
     );

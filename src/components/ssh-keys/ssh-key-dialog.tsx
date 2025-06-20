@@ -29,15 +29,16 @@ function SSHKeyDialog() {
             event.preventDefault();
             const formData = new FormData(event.target as HTMLFormElement);
             const method = keyId ? "PATCH" : "POST";
-            mutateSSHKey(formData, keyId, method);
+            await mutateSSHKey(formData, keyId, method);
         },
+        mutationKey: ["sshKeys", "add"],
         onError: (error: Error) => {
             console.error(error);
             toast.error(error.message, {
-                description: "Erros saving SSH key",
+                description: "Error saving SSH key",
                 action: {
                     label: "Try again",
-                    onClick: () => console.log("Undo"),
+                    onClick: () => sshKeyMutation.mutate(sshKeyMutation.variables!),
                 },
             });
         },

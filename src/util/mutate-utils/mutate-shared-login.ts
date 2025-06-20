@@ -7,17 +7,14 @@ import { queryClient } from "@/util/query-utils/query-client";
 import { queryLogin } from "@/util/query-utils/query-login";
 
 export async function mutateSharedLogin(
-    formData: FormData,
+    formData: FormData | null,
     loginId: string | null
 ) {
-    if (!formData.has("shared_login_datum[email]")) {
+    if (!formData) {
         await networkFetch("shared_login_data/" + loginId, null, "DELETE");
         return;
     }
-    formData.set(
-        "shared_login_datum[login_id]",
-        loginId!
-    );
+    formData.set("shared_login_datum[login_id]", loginId!);
     const publicKeyRequest = await networkFetch(
         "shared_login_data/new?email=" +
             formData.get("shared_login_datum[email]")
@@ -29,15 +26,8 @@ export async function mutateSharedLogin(
 
     const publicKey = publicKeyRequest.public_key;
     const { individualLogin } = await queryClient.fetchQuery({
-        queryKey: [
-            "individualLogin",
-            loginId,
-        ],
-        queryFn: ({ signal }) =>
-            queryLogin(
-                loginId!,
-                signal
-            ),
+        queryKey: ["individualLogin", loginId],
+        queryFn: ({ signal }) => queryLogin(loginId!, signal),
     });
     const plaintextPassword = await decryptAES(
         individualLogin.login_password,

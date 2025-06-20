@@ -32,6 +32,7 @@ type Login = {
     iv: string;
     file?: string;
     login_id: number;
+    urls: string[];
 };
 
 const LoginDropdown: React.FC<{ login: Login }> = (props) => {
@@ -69,9 +70,10 @@ const LoginDropdown: React.FC<{ login: Login }> = (props) => {
         mutationFn: async (event: React.FormEvent<HTMLFormElement>) => {
             event.preventDefault();
             const formData = new FormData(event.target as HTMLFormElement);
-            await mutateSharedLogin(formData, props.login.login_id.toString());
             navigate("/shared-logins/by-me");
+            await mutateSharedLogin(formData, props.login.login_id.toString());
         },
+        mutationKey: ["sharedLogins", "add"],
         onError: (error: Error) => {
             console.error(error);
             toast.error(error.message, {
@@ -160,6 +162,21 @@ const LoginDropdown: React.FC<{ login: Login }> = (props) => {
                             Enter email address to share login.
                         </DialogDescription>
                         <form onSubmit={sharedLoginMutation.mutate}>
+                            <Input
+                                type="hidden"
+                                name="shared_login_datum[name]"
+                                value={props.login.login_name}
+                            />
+                            <Input
+                                type="hidden"
+                                name="shared_login_datum[login_name]"
+                                value={props.login.login_name}
+                            />
+                            <Input
+                                type="hidden"
+                                name="shared_login_datum[urls_attributes][0][uri]"
+                                value={props.login.urls[0]}
+                            />
                             <Input
                                 type="text"
                                 name="shared_login_datum[email]"

@@ -40,13 +40,7 @@ export async function mutateUserRegistration(formData: FormData) {
         }),
     });
     if (!response.ok) {
-        const error: { [key: string]: string[] } = await response
-            .json()
-            .then((data) => data.error);
-        const key = Object.keys(error)[0];
-        throw new Error(
-            key[0].toUpperCase() + key.slice(1) + " " + error[key]?.[0]
-        );
+        throw new Error(await response.json().then((data) => data.error));
     }
     const data = response.headers.get("Authorization");
     if (data) {
