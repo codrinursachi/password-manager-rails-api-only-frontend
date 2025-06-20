@@ -54,20 +54,24 @@ function LoginsTable() {
                 action: {
                     label: "Retry",
                     onClick: () =>
-                        queryClient.invalidateQueries({ queryKey: ["logins"] }),
+                        queryClient.invalidateQueries({ queryKey: ["logins",searchParams.toString()] }),
                 },
             });
         }
     }, [error]);
 
-    const pendingLoginsAdd = useMutationState<FormData>({
-        filters: { mutationKey: ["login", "add"], status: "pending" },
-        select: (mutation) =>
-            new FormData(
-                (mutation.state.variables as React.FormEvent<HTMLFormElement>)
-                    .target as HTMLFormElement
-            ),
-    });
+    const pendingLoginsAdd = mapToLogin(
+        useMutationState<FormData>({
+            filters: { mutationKey: ["login", "add"], status: "pending" },
+            select: (mutation) =>
+                new FormData(
+                    (
+                        mutation.state
+                            .variables as React.FormEvent<HTMLFormElement>
+                    ).target as HTMLFormElement
+                ),
+        })
+    );
     const pendingLoginsEdit = mapToLogin(
         useMutationState({
             filters: { mutationKey: ["login", "edit"], status: "pending" },
@@ -155,19 +159,9 @@ function LoginsTable() {
                         key={"pending-add-" + index}
                         className="text-gray-500"
                     >
-                        <TableCell>
-                            {login.get("login[name]")?.toString()!}
-                        </TableCell>
-                        <TableCell>
-                            {login.get("login[login_name]")?.toString()!}
-                        </TableCell>
-                        <TableCell>
-                            {
-                                login
-                                    .get("login[urls_attributes][0][uri]")
-                                    ?.toString()!
-                            }
-                        </TableCell>
+                        <TableCell>{login.name}</TableCell>
+                        <TableCell>{login.login_name}</TableCell>
+                        <TableCell>{login.urls[0]}</TableCell>
                         <TableCell />
                     </TableRow>
                 ))}
