@@ -42,10 +42,12 @@ export function LoginForm({
             setLoginWithPassword(false);
         }
     }, [loginMutation.error]);
-    if (loginMutation.isSuccess) {
-        loginMutation.reset();
-        navigate("/");
-    }
+    useEffect(() => {
+        if (loginMutation.isSuccess) {
+            loginMutation.reset();
+            navigate("/");
+        }
+    }, [loginMutation.isSuccess]);
 
     return (
         <div className={cn("flex flex-col gap-6", className)} {...props}>

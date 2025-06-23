@@ -42,10 +42,12 @@ export function RegisterForm({
             setRegisterWithPassword(false);
         }
     }, [registrationMutation.error]);
-    if (registrationMutation.isSuccess) {
-        registrationMutation.reset();
-        navigate("/");
-    }
+    useEffect(() => {
+        if (registrationMutation.isSuccess) {
+            registrationMutation.reset();
+            navigate("/");
+        }
+    }, [registrationMutation.isSuccess]);
 
     return (
         <div className={cn("flex flex-col gap-6", className)} {...props}>

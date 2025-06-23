@@ -31,8 +31,7 @@ const LoginDialog = () => {
     const navigate = useNavigate();
     const loginMutation = useMutation({
         mutationKey: ["login", loginId ? "edit" : "add"],
-        mutationFn: async (event: React.FormEvent<HTMLFormElement>) => {
-            const formData = new FormData(event.target as HTMLFormElement);
+        mutationFn: async (formData: FormData) => {
             await mutateLogin(formData, loginId, loginId ? "PATCH" : "POST");
         },
         onError: (error: Error) => {
@@ -74,7 +73,7 @@ const LoginDialog = () => {
                         e.preventDefault();
                         if (valid) {
                             navigate(-1);
-                            loginMutation.mutate(e);
+                            loginMutation.mutate(new FormData(e.target as HTMLFormElement));
                         }
                     }}
                     encType="multipart/form-data"

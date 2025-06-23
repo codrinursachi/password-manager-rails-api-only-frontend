@@ -8,7 +8,7 @@ import {
     TableBody,
     TableCell,
 } from "../ui/table";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { TableContentSkeleton } from "../skeletons/table-content-skeleton";
 import { useMutationState, useQuery } from "@tanstack/react-query";
 import { queryLogins } from "@/util/query-utils/query-logins";
@@ -24,22 +24,18 @@ type Login = {
     iv: string;
 };
 
-const mapToLogin = (formData: FormData[]): Login[] =>
-    formData.map((individualFormData) => ({
-        login_id: parseInt(
-            individualFormData.get("login[login_id]")?.toString() ?? "0"
-        ),
-        name: individualFormData.get("login[name]")!.toString(),
-        login_name: individualFormData.get("login[login_name]")!.toString(),
-        urls: [
-            individualFormData
-                .get("login[urls_attributes][0][uri]")!
-                .toString(),
-        ],
-        login_password: "",
-        iv: "",
-    }));
-
+const transformToLogin = (individualFormData: FormData): Login => ({
+    login_id: parseInt(
+        individualFormData.get("login[login_id]")?.toString() ?? "0"
+    ),
+    name: individualFormData.get("login[name]")!.toString(),
+    login_name: individualFormData.get("login[login_name]")!.toString(),
+    urls: [
+        individualFormData.get("login[urls_attributes][0][uri]")!.toString(),
+    ],
+    login_password: "",
+    iv: "",
+});
 function LoginsTable() {
     const [searchParams] = useSearchParams();
     const { data, error } = useQuery<{ logins: Login[] }>({
@@ -54,36 +50,22 @@ function LoginsTable() {
                 action: {
                     label: "Retry",
                     onClick: () =>
-                        queryClient.invalidateQueries({ queryKey: ["logins",searchParams.toString()] }),
+                        queryClient.invalidateQueries({
+                            queryKey: ["logins", searchParams.toString()],
+                        }),
                 },
             });
         }
     }, [error]);
 
-    const pendingLoginsAdd = mapToLogin(
-        useMutationState<FormData>({
-            filters: { mutationKey: ["login", "add"], status: "pending" },
-            select: (mutation) =>
-                new FormData(
-                    (
-                        mutation.state
-                            .variables as React.FormEvent<HTMLFormElement>
-                    ).target as HTMLFormElement
-                ),
-        })
-    );
-    const pendingLoginsEdit = mapToLogin(
-        useMutationState({
-            filters: { mutationKey: ["login", "edit"], status: "pending" },
-            select: (mutation) =>
-                new FormData(
-                    (
-                        mutation.state
-                            .variables as React.FormEvent<HTMLFormElement>
-                    ).target as HTMLFormElement
-                ),
-        })
-    );
+    const pendingLoginsAdd = useMutationState({
+        filters: { mutationKey: ["login", "add"], status: "pending" },
+        select: (mutation) => transformToLogin(mutation.state.variables as FormData),
+    });
+    const pendingLoginsEdit = useMutationState({
+        filters: { mutationKey: ["login", "edit"], status: "pending" },
+        select: (mutation) => transformToLogin(mutation.state.variables as FormData),
+    });
     const pendingLoginsTrash = useMutationState({
         filters: { mutationKey: ["login", "trash"], status: "pending" },
         select: (mutation) => parseInt(mutation.state.variables as string),
