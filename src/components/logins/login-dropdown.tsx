@@ -1,4 +1,4 @@
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, Variable } from "lucide-react";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -36,59 +36,47 @@ type Login = {
 };
 
 const LoginDropdown: React.FC<{ login: Login }> = (props) => {
-    const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
+    const [dropdownOpen, setDropdownOpen] = useState(false);
     const navigate = useNavigate();
     const loginMutation = useMutation({
-        mutationFn: async (login_id: string) => {
-            await mutateLogin(null, login_id, "DELETE");
+        mutationFn: async (loginId: string) => {
+            await mutateLogin(null, loginId, "DELETE");
         },
         mutationKey: ["login", "trash"],
-        onError: (error: Error) => {
+        onError: (error: Error, variables) => {
             console.error(error);
             toast.error(error.message, {
                 description: "Error sending login to trash",
                 action: {
                     label: "Try again",
                     onClick: () =>
-                        loginMutation.mutate(loginMutation.variables!),
+                        loginMutation.mutate(variables),
                 },
             });
         },
         onSettled: () => {
-            queryClient.setQueryData(
-                ["logins", ""],
-                (oldData: { logins: { login_id: number }[] }) => ({
-                    logins: oldData.logins.filter(
-                        (login) => login.login_id !== props.login.login_id
-                    ),
-                })
-            );
-            queryClient.invalidateQueries({ queryKey: ["logins"] });
+            queryClient.invalidateQueries({ queryKey: ["logins", ""] });
         },
     });
     const sharedLoginMutation = useMutation({
-        mutationFn: async (event: React.FormEvent<HTMLFormElement>) => {
-            event.preventDefault();
-            const formData = new FormData(event.target as HTMLFormElement);
+        mutationFn: async (formData: FormData) => {
             navigate("/shared-logins/by-me");
             await mutateSharedLogin(formData, props.login.login_id.toString());
         },
         mutationKey: ["sharedLogins", "add"],
-        onError: (error: Error) => {
-            console.error(error);
+        onError: (error: Error, variables) => {
             toast.error(error.message, {
                 description: "Error sharing login",
                 action: {
                     label: "Try again",
-                    onClick: () =>
-                        sharedLoginMutation.mutate(
-                            sharedLoginMutation.variables!
-                        ),
+                    onClick: () => sharedLoginMutation.mutate(variables),
                 },
             });
         },
         onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: ["shared-logins"] });
+            queryClient.invalidateQueries({
+                queryKey: ["shared-logins", "by_me=true"],
+            });
         },
     });
     return (
@@ -139,11 +127,11 @@ const LoginDropdown: React.FC<{ login: Login }> = (props) => {
                 ) : (
                     ""
                 )}
-                <Link to={"/logins/" + props.login.login_id + "/edit"}>
-                    <DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                    <Link to={"/logins/" + props.login.login_id + "/edit"}>
                         <span>Edit login</span>
-                    </DropdownMenuItem>
-                </Link>
+                    </Link>
+                </DropdownMenuItem>
                 <Dialog>
                     <DialogTrigger asChild>
                         <DropdownMenuItem
@@ -161,7 +149,14 @@ const LoginDropdown: React.FC<{ login: Login }> = (props) => {
                         <DialogDescription className="hidden">
                             Enter email address to share login.
                         </DialogDescription>
-                        <form onSubmit={sharedLoginMutation.mutate}>
+                        <form
+                            onSubmit={(event) => {
+                                event.preventDefault();
+                                sharedLoginMutation.mutate(
+                                    new FormData(event.currentTarget)
+                                );
+                            }}
+                        >
                             <Input
                                 type="hidden"
                                 name="shared_login_datum[name]"

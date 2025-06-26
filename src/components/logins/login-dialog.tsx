@@ -34,13 +34,13 @@ const LoginDialog = () => {
         mutationFn: async (formData: FormData) => {
             await mutateLogin(formData, loginId, loginId ? "PATCH" : "POST");
         },
-        onError: (error: Error) => {
+        onError: (error: Error, variables) => {
             toast.error(error.message, {
                 description: "Failed to save login.",
                 action: {
                     label: "Try again",
                     onClick: () =>
-                        loginMutation.mutate(loginMutation.variables!),
+                        loginMutation.mutate(variables),
                 },
             });
         },

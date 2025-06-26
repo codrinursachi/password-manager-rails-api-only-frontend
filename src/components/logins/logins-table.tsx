@@ -60,11 +60,13 @@ function LoginsTable() {
 
     const pendingLoginsAdd = useMutationState({
         filters: { mutationKey: ["login", "add"], status: "pending" },
-        select: (mutation) => transformToLogin(mutation.state.variables as FormData),
+        select: (mutation) =>
+            transformToLogin(mutation.state.variables as FormData),
     });
     const pendingLoginsEdit = useMutationState({
         filters: { mutationKey: ["login", "edit"], status: "pending" },
-        select: (mutation) => transformToLogin(mutation.state.variables as FormData),
+        select: (mutation) =>
+            transformToLogin(mutation.state.variables as FormData),
     });
     const pendingLoginsTrash = useMutationState({
         filters: { mutationKey: ["login", "trash"], status: "pending" },
@@ -96,7 +98,7 @@ function LoginsTable() {
                     );
                     return (
                         <TableRow
-                            key={login.login_id}
+                            key={login.login_id.toString()}
                             className={
                                 pendingEdit
                                     ? "text-green-500"
