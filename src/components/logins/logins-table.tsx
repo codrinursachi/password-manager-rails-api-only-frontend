@@ -1,4 +1,4 @@
-import { Link, useSearchParams } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import LoginDropdown from "./login-dropdown";
 import {
     Table,
@@ -10,10 +10,12 @@ import {
 } from "../ui/table";
 import { useEffect } from "react";
 import { TableContentSkeleton } from "../skeletons/table-content-skeleton";
-import { useMutationState, useQuery } from "@tanstack/react-query";
+import { useMutation, useMutationState, useQuery } from "@tanstack/react-query";
 import { queryLogins } from "@/util/query-utils/query-logins";
 import { toast } from "sonner";
 import { queryClient } from "@/util/query-utils/query-client";
+import { mutateLogin } from "@/util/mutate-utils/mutate-login";
+import { mutateSharedLogin } from "@/util/mutate-utils/mutate-shared-login";
 
 type Login = {
     login_id: number;
@@ -73,6 +75,47 @@ function LoginsTable() {
         select: (mutation) => parseInt(mutation.state.variables as string),
     });
 
+    const navigate = useNavigate();
+    const loginMutation = useMutation({
+        mutationFn: async (loginId: string) => {
+            await mutateLogin(null, loginId, "DELETE");
+        },
+        mutationKey: ["login", "trash"],
+        onError: (error: Error, variables) => {
+            console.error(error);
+            toast.error(error.message, {
+                description: "Error sending login to trash",
+                action: {
+                    label: "Try again",
+                    onClick: () => loginMutation.mutate(variables),
+                },
+            });
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: ["logins", ""] });
+        },
+    });
+    const sharedLoginMutation = useMutation({
+        mutationFn: async ({ formData, loginId }: { formData: FormData; loginId: string }) => {
+            navigate("/shared-logins/by-me");
+            await mutateSharedLogin(formData, loginId);
+        },
+        mutationKey: ["sharedLogins", "add"],
+        onError: (error: Error, variables) => {
+            toast.error(error.message, {
+                description: "Error sharing login",
+                action: {
+                    label: "Try again",
+                    onClick: () => sharedLoginMutation.mutate(variables),
+                },
+            });
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries({
+                queryKey: ["shared-logins", "by_me=true"],
+            });
+        },
+    });
     return (
         <Table className="table-fixed">
             <TableHeader>
@@ -132,7 +175,13 @@ function LoginsTable() {
                             </TableCell>
                             <TableCell>
                                 {!pendingEdit && !pendingTrash && (
-                                    <LoginDropdown login={login} />
+                                    <LoginDropdown
+                                        login={login}
+                                        loginMutation={loginMutation}
+                                        sharedLoginMutation={
+                                            sharedLoginMutation
+                                        }
+                                    />
                                 )}
                             </TableCell>
                         </TableRow>

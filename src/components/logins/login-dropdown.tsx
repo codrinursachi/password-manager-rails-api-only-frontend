@@ -20,7 +20,7 @@ import React, { useState } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { decryptAES } from "@/util/crypt-utils/cryptography";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, UseMutationResult } from "@tanstack/react-query";
 import { mutateLogin } from "@/util/mutate-utils/mutate-login";
 import { mutateSharedLogin } from "@/util/mutate-utils/mutate-shared-login";
 import { queryClient } from "@/util/query-utils/query-client";
@@ -35,50 +35,21 @@ type Login = {
     urls: string[];
 };
 
-const LoginDropdown: React.FC<{ login: Login }> = (props) => {
+const LoginDropdown: React.FC<{
+    login: Login;
+    loginMutation: UseMutationResult<void, Error, string, unknown>;
+    sharedLoginMutation: UseMutationResult<
+        void,
+        Error,
+        {
+            formData: FormData;
+            loginId: string;
+        },
+        unknown
+    >;
+}> = (props) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
-    const navigate = useNavigate();
-    const loginMutation = useMutation({
-        mutationFn: async (loginId: string) => {
-            await mutateLogin(null, loginId, "DELETE");
-        },
-        mutationKey: ["login", "trash"],
-        onError: (error: Error, variables) => {
-            console.error(error);
-            toast.error(error.message, {
-                description: "Error sending login to trash",
-                action: {
-                    label: "Try again",
-                    onClick: () =>
-                        loginMutation.mutate(variables),
-                },
-            });
-        },
-        onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: ["logins", ""] });
-        },
-    });
-    const sharedLoginMutation = useMutation({
-        mutationFn: async (formData: FormData) => {
-            navigate("/shared-logins/by-me");
-            await mutateSharedLogin(formData, props.login.login_id.toString());
-        },
-        mutationKey: ["sharedLogins", "add"],
-        onError: (error: Error, variables) => {
-            toast.error(error.message, {
-                description: "Error sharing login",
-                action: {
-                    label: "Try again",
-                    onClick: () => sharedLoginMutation.mutate(variables),
-                },
-            });
-        },
-        onSettled: () => {
-            queryClient.invalidateQueries({
-                queryKey: ["shared-logins", "by_me=true"],
-            });
-        },
-    });
+
     return (
         <DropdownMenu
             modal={false}
@@ -152,9 +123,10 @@ const LoginDropdown: React.FC<{ login: Login }> = (props) => {
                         <form
                             onSubmit={(event) => {
                                 event.preventDefault();
-                                sharedLoginMutation.mutate(
-                                    new FormData(event.currentTarget)
-                                );
+                                props.sharedLoginMutation.mutate({
+                                    loginId: props.login.login_id.toString(),
+                                    formData: new FormData(event.currentTarget),
+                                });
                             }}
                         >
                             <Input
@@ -226,7 +198,7 @@ const LoginDropdown: React.FC<{ login: Login }> = (props) => {
                                 <Button
                                     type="button"
                                     onClick={() => {
-                                        loginMutation.mutate(
+                                        props.loginMutation.mutate(
                                             props.login.login_id.toString()
                                         );
                                         setDropdownOpen(false);
