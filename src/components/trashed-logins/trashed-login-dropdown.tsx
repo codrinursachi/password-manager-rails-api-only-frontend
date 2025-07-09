@@ -41,13 +41,13 @@ const TrashedLoginDropdown: React.FC<{ login: TrashedLogin }> = (props) => {
             event.preventDefault();
             mutateTrashedLogin(loginId.toString(), method);
         },
-        onError: (error: Error) => {
+        onError: (error: Error, variables) => {
             console.error(error);
             toast.error(error.message, {
                 description: "Error performing trashed login action",
                 action: {
                     label: "Try again",
-                    onClick: () => console.log("Undo"),
+                    onClick: () => trashedLoginMutation.mutate(variables),
                 },
             });
         },

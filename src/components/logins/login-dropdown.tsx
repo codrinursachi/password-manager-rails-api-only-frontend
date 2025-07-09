@@ -1,11 +1,11 @@
-import { MoreHorizontal, Variable } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { Link, useNavigate } from "react-router";
+import { Link } from "react-router";
 import {
     Dialog,
     DialogClose,
@@ -20,11 +20,7 @@ import React, { useState } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { decryptAES } from "@/util/crypt-utils/cryptography";
-import { useMutation, UseMutationResult } from "@tanstack/react-query";
-import { mutateLogin } from "@/util/mutate-utils/mutate-login";
-import { mutateSharedLogin } from "@/util/mutate-utils/mutate-shared-login";
-import { queryClient } from "@/util/query-utils/query-client";
-import { toast } from "sonner";
+import { UseMutationResult } from "@tanstack/react-query";
 
 type Login = {
     login_name: string;

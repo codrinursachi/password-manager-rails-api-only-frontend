@@ -35,7 +35,7 @@ type SSHKey = {
     notes: string;
 };
 
-function sshKeysTable() {
+function SSHKeysTable() {
     const { data, error } = useQuery<{ sshKeys: SSHKey[] }>({
         queryKey: ["sshKeys"],
         queryFn: ({ signal }) => querySSHKeys(signal),
@@ -178,4 +178,4 @@ function sshKeysTable() {
     );
 }
 
-export default sshKeysTable;
+export default SSHKeysTable;

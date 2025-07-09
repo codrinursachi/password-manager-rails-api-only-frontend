@@ -37,10 +37,7 @@ function SharedLoginsTable() {
     const pendingSharedLoginsAdd = useMutationState({
         filters: { mutationKey: ["sharedLogins", "add"], status: "pending" },
         select: (mutation) => {
-            const formdata = new FormData(
-                (mutation.state.variables as React.FormEvent<HTMLFormElement>)
-                    .target as HTMLFormElement
-            );
+            const formdata = (mutation.state.variables as { formData: FormData }).formData;
             return {
                 name: formdata.get("shared_login_datum[name]")!.toString(),
                 login_name: formdata
